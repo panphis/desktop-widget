@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { TitleBar } from "@/components/layout";
+import { ThemeProvider } from "@/provider";
+import WindowSnap from "@/components/window-snap";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,11 +27,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen font-[family-name:var(--font-geist-sans)] bg-opacity-30 backdrop-blur-md`}
       >
-        {children}
+
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <WindowSnap />
+          {/* 背景层 */}
+          <div className="fixed inset-0 -z-10">
+            <div className="absolute top-20 left-20 w-72 h-72 rounded-full blur-3xl opacity-30 bg-blue-200 dark:bg-blue-800 transition-all duration-500" />
+            <div className="absolute bottom-20 right-20 w-96 h-96 rounded-full blur-3xl opacity-20 bg-purple-400 dark:bg-pink-200 transition-all duration-500" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full blur-3xl opacity-25 bg-indigo-400 dark:bg-blue-500 transition-all duration-500" />
+          </div>
+          <TitleBar />
+          <main className="container p-2">{children}</main>
+        </ThemeProvider>
       </body>
     </html>
   );
