@@ -5,7 +5,7 @@ import React, { FC, ReactNode } from 'react';
 import { type Control, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { DatePicker, DateRangePicker, RichTextEditor } from '@/components';
+import { DatePicker, DateRangePicker } from '@/components';
 import { LoadingButton } from '@/components';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -319,29 +319,6 @@ const RenderField: FC<RenderFieldProps> = ({ field, control, errors, formDefault
 						)}
 					/>
 				);
-			case 'rich-text':
-				return (
-					<FormField
-						name={field.name}
-						control={control}
-						defaultValue={getDefaultValue() as string}
-						render={({ field: formField }: { field: ControllerRenderProps['field'] }) => (
-							<FormItem className="flex flex-row gap-2 items-start">
-								<FormLabel className={cn(labelClassName, 'shrink-0 h-9')} required={field.required}>
-									{field.label}
-								</FormLabel>
-								<div className="flex flex-col gap-2 min-h-9 grow-1">
-									<FormControl>
-										<RichTextEditor {...formField} value={formField.value as string} />
-									</FormControl>
-									<FormDescription>{field.description}</FormDescription>
-									<FormMessage />
-								</div>
-							</FormItem>
-						)}
-					/>
-				);
-
 			default:
 				return (
 					<FormField

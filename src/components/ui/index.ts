@@ -239,6 +239,7 @@ export { Skeleton } from "./skeleton";
 export { Slider } from "./slider";
 export { Toaster } from "./sonner";
 export { Switch } from "./switch";
+export { MobileOptimized, ResponsiveText, ResponsiveButton } from "./mobile-optimized";
 export {
   Table,
   TableBody,

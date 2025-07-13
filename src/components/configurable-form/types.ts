@@ -12,8 +12,7 @@ export type FieldType =
 	| 'checkbox'
 	| 'radio'
 	| 'date'
-	| 'date-range'
-	| 'rich-text';
+	| 'date-range';
 
 // 选项类型（用于select和radio）
 export interface Option {

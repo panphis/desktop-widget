@@ -87,21 +87,31 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-function FormLabel({
-  className,
-  ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root>) {
-  const { error, formItemId } = useFormField()
 
-  return (
-    <Label
-      data-slot="form-label"
-      data-error={!!error}
-      className={cn("data-[error=true]:text-destructive", className)}
-      htmlFor={formItemId}
-      {...props}
-    />
-  )
+function FormLabel({
+	className,
+	children,
+	required = false,
+	colon = false,
+	...props
+}: React.ComponentProps<typeof LabelPrimitive.Root> & { required?: boolean; colon?: boolean }) {
+	const { error, formItemId } = useFormField();
+	return (
+		<Label
+			data-slot="form-label"
+			data-error={!!error}
+			className={cn(
+				'data-[error=true]:text-destructive',
+				className,
+				!!required && `after:content-['*'] after:text-red-500 after:ml-0.5 after:font-bold`
+			)}
+			htmlFor={formItemId}
+			{...props}
+		>
+			{children}
+			{!!colon && ':'}
+		</Label>
+	);
 }
 
 function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {

@@ -248,33 +248,6 @@ export const DateAndDateRange: Story = {
 };
 
 // 富文本
-export const RichText: Story = {
-	args: {
-		title: '文本',
-		fields: [
-			{
-				name: 'content',
-				label: '富文本1',
-				type: 'rich-text',
-				required: false,
-				description: '请输入富文本',
-			},
-			{
-				name: 'article',
-				label: '富文本2',
-				type: 'rich-text',
-				required: true,
-				description: '请输入富文本',
-			},
-		] as const,
-		defaultValues: {
-			content: '',
-			article: `<p> Hello word </p>`,
-		},
-	},
-};
-
-// 富文本
 export const AllDemo: Story = {
 	args: {
 		title: '文本',
@@ -368,13 +341,6 @@ export const AllDemo: Story = {
 				type: 'date-range',
 				required: true,
 				description: '请选择日期范围',
-			},
-			{
-				name: 'content',
-				label: '富文本',
-				type: 'rich-text',
-				required: false,
-				description: '请输入富文本',
 			},
 		] as const,
 	},
