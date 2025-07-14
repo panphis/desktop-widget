@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { groupEvents, getEventBlockStyle, getVisibleHours } from "../../helpers";
 
 import type { IEvent } from "../../interfaces";
+import { formatTime } from "@/lib/format";
 
 interface IProps {
   singleDayEvents: IEvent[];
@@ -25,16 +26,11 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
 
   const { hours, earliestEventHour, latestEventHour } = getVisibleHours(visibleHours, singleDayEvents);
 
-  const weekStart = startOfWeek(selectedDate);
+  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center border-b py-4 text-sm text-muted-foreground sm:hidden">
-        <p>Weekly view is not available on smaller devices.</p>
-        <p>Please switch to daily or monthly view.</p>
-      </div>
-
       <div className="hidden flex-col sm:flex">
         <div>
           <WeekViewMultiDayEventsRow selectedDate={selectedDate} multiDayEvents={multiDayEvents} />
@@ -45,7 +41,7 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
             <div className="grid flex-1 grid-cols-7 divide-x border-l">
               {weekDays.map((day, index) => (
                 <span key={index} className="py-2 text-center text-xs font-medium text-muted-foreground">
-                  {format(day, "EE")} <span className="ml-1 font-semibold text-foreground">{format(day, "d")}</span>
+                  {formatTime(day, "dddd")} <span className="ml-1 font-semibold text-foreground">{formatTime(day, "D")}</span>
                 </span>
               ))}
             </div>

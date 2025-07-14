@@ -1,8 +1,8 @@
 "use client";
 
-import { format, parseISO } from "date-fns";
+import dayjs from "dayjs";
 import { cva } from "class-variance-authority";
-import { Clock, Text, User } from "lucide-react";
+import { Clock, Text } from "lucide-react";
 
 import { useCalendar } from "../../contexts/calendar-context";
 
@@ -10,6 +10,7 @@ import { EventDetailsDialog } from "../../components/dialogs/event-details-dialo
 
 import type { IEvent } from "../../interfaces";
 import type { VariantProps } from "class-variance-authority";
+import { formatTime } from "@/lib/format";
 
 const agendaEventCardVariants = cva(
   "flex select-none items-center justify-between gap-3 rounded-md border p-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
@@ -50,8 +51,6 @@ interface IProps {
 export function AgendaEventCard({ event, eventCurrentDay, eventTotalDays }: IProps) {
   const { badgeVariant } = useCalendar();
 
-  const startDate = parseISO(event.startDate);
-  const endDate = parseISO(event.endDate);
 
   const color = (badgeVariant === "dot" ? `${event.color}-dot` : event.color) as VariantProps<typeof agendaEventCardVariants>["color"];
 
@@ -78,7 +77,7 @@ export function AgendaEventCard({ event, eventCurrentDay, eventTotalDays }: IPro
             <p className="font-medium">
               {eventCurrentDay && eventTotalDays && (
                 <span className="mr-1 text-xs">
-                  Day {eventCurrentDay} of {eventTotalDays} •{" "}
+                  第 {eventCurrentDay} 天 / 共 {eventTotalDays} 天 •{" "}
                 </span>
               )}
               {event.title}
@@ -88,7 +87,7 @@ export function AgendaEventCard({ event, eventCurrentDay, eventTotalDays }: IPro
           <div className="flex items-center gap-1">
             <Clock className="size-3 shrink-0" />
             <p className="text-xs text-foreground">
-              {format(startDate, "h:mm a")} - {format(endDate, "h:mm a")}
+              {formatTime(event.startDate, "HH:mm")} - {formatTime(event.endDate, "HH:mm")}
             </p>
           </div>
 

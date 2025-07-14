@@ -22,11 +22,11 @@ export function DayCell({ cell, events, eventPositions }: IProps) {
   const { day, currentMonth, date } = cell;
 
   const cellEvents = useMemo(() => getMonthCellEvents(date, events, eventPositions), [date, events, eventPositions]);
-  const isSunday = date.getDay() === 0;
+  const isSaturday = date.getDay() === 6;
 
   return (
     <DroppableDayCell cell={cell}>
-      <div className={cn("flex h-full flex-col gap-1 border-l border-t py-1.5 lg:py-2", isSunday && "border-l-0")}>
+      <div className={cn("flex h-full flex-col gap-1 border-l border-t py-1.5 lg:py-2", isSaturday && "border-l-0")}>
         <span
           className={cn(
             "h-6 px-1 text-xs font-semibold lg:px-2",

@@ -12,6 +12,8 @@ import type { HTMLAttributes } from "react";
 import type { IEvent } from "../../interfaces";
 import type { VariantProps } from "class-variance-authority";
 
+import { formatTime } from "@/lib/format";
+
 const calendarWeekEventCardVariants = cva(
   "flex select-none flex-col gap-0.5 truncate whitespace-nowrap rounded-md border px-2 py-1.5 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
   {
@@ -81,7 +83,7 @@ export function EventBlock({ event, className }: IProps) {
 
           {durationInMinutes > 25 && (
             <p>
-              {format(start, "h:mm a")} - {format(end, "h:mm a")}
+              {formatTime(start, "h:mm a")} - {formatTime(end, "h:mm a")}
             </p>
           )}
         </div>

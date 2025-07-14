@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { format, isSameDay, parseISO, getDaysInMonth, startOfMonth } from "date-fns";
 
 import { useCalendar } from "../../contexts/calendar-context";
@@ -7,6 +6,7 @@ import { useCalendar } from "../../contexts/calendar-context";
 import { YearViewDayCell } from "./year-view-day-cell";
 
 import type { IEvent } from "../../interfaces";
+import { formatTime } from "@/lib/format";
 
 interface IProps {
   month: Date;
@@ -14,26 +14,26 @@ interface IProps {
 }
 
 export function YearViewMonth({ month, events }: IProps) {
-  const { push } = useRouter();
-  const { setSelectedDate } = useCalendar();
+  const { setSelectedDate, setView } = useCalendar();
 
-  const monthName = format(month, "MMMM");
 
   const daysInMonth = useMemo(() => {
     const totalDays = getDaysInMonth(month);
     const firstDay = startOfMonth(month).getDay();
+    // 将周日(0)转换为6，其他日期减1，这样周一(1)变成0，周二(2)变成1，以此类推
+    const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
 
     const days = Array.from({ length: totalDays }, (_, i) => i + 1);
-    const blanks = Array(firstDay).fill(null);
+    const blanks = Array(adjustedFirstDay).fill(null);
 
     return [...blanks, ...days];
   }, [month]);
 
-  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const weekDays = ["一", "二", "三", "四", "五", "六", "日"];
 
   const handleClick = () => {
     setSelectedDate(new Date(month.getFullYear(), month.getMonth(), 1));
-    push("/month-view");
+    setView("month");
   };
 
   return (
@@ -43,7 +43,7 @@ export function YearViewMonth({ month, events }: IProps) {
         onClick={handleClick}
         className="w-full rounded-t-lg border px-3 py-2 text-sm font-semibold hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
       >
-        {monthName}
+        {formatTime(month, "MMMM")}
       </button>
 
       <div className="flex-1 space-y-2 rounded-b-lg border border-t-0 p-3">
@@ -59,7 +59,7 @@ export function YearViewMonth({ month, events }: IProps) {
           {daysInMonth.map((day, index) => {
             if (day === null) return <div key={`blank-${index}`} className="h-10" />;
 
-            const date = new Date(month.getFullYear(), month.getMonth(), day);
+            const date = new Date(month.getFullYear(), month.getMonth(), day + 1);
             const dayEvents = events.filter(event => isSameDay(parseISO(event.startDate), date) || isSameDay(parseISO(event.endDate), date));
 
             return <YearViewDayCell key={`day-${day}`} day={day} date={date} events={dayEvents} />;

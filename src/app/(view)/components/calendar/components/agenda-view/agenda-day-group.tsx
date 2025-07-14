@@ -4,6 +4,8 @@ import { AgendaEventCard } from "../agenda-view/agenda-event-card";
 
 import type { IEvent } from "../../interfaces";
 
+import { formatTime } from "@/lib/format";
+
 interface IProps {
   date: Date;
   events: IEvent[];
@@ -16,7 +18,7 @@ export function AgendaDayGroup({ date, events, multiDayEvents }: IProps) {
   return (
     <div className="space-y-4">
       <div className="sticky top-0 flex items-center gap-4 bg-background py-2">
-        <p className="text-sm font-semibold">{format(date, "EEEE, MMMM d, yyyy")}</p>
+        <p className="text-sm font-semibold">{formatTime(date, "YYYY MMMM d, dddd")}</p>
       </div>
 
       <div className="space-y-2">

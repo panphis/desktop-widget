@@ -39,9 +39,11 @@ export function ClientContainer() {
 
       if (view === "week") {
         const dayOfWeek = selectedDate.getDay();
+        // 将周日(0)转换为7，其他保持不变，这样周一(1)变成1，周二(2)变成2，以此类推
+        const adjustedDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek;
 
         const weekStart = new Date(selectedDate);
-        weekStart.setDate(selectedDate.getDate() - dayOfWeek);
+        weekStart.setDate(selectedDate.getDate() - (adjustedDayOfWeek - 1));
         weekStart.setHours(0, 0, 0, 0);
 
         const weekEnd = new Date(weekStart);

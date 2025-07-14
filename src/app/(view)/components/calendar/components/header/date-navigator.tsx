@@ -11,6 +11,7 @@ import { getEventsCount, navigateDate, rangeText } from "../../helpers";
 
 import type { IEvent } from "../../interfaces";
 import type { TCalendarView } from "../../types";
+import { formatTime } from "@/lib/format";
 
 interface IProps {
   view: TCalendarView;
@@ -20,8 +21,6 @@ interface IProps {
 export function DateNavigator({ view, events }: IProps) {
   const { selectedDate, setSelectedDate } = useCalendar();
 
-  const month = formatDate(selectedDate, "MMMM");
-  const year = selectedDate.getFullYear();
 
   const eventCount = useMemo(() => getEventsCount(events, selectedDate, view), [events, selectedDate, view]);
 
@@ -32,21 +31,21 @@ export function DateNavigator({ view, events }: IProps) {
     <div className="space-y-0.5">
       <div className="flex items-center gap-2">
         <span className="text-lg font-semibold">
-          {month} {year}
+          {formatTime(selectedDate, "YYYY MMMM")}
         </span>
-        <Badge variant="outline" className="px-1.5">
-          {eventCount} events
+        <Badge variant="outline" className="px-1.5" title={`${eventCount} 件事件`}>
+          {eventCount} 件事件
         </Badge>
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant="outline" className="size-6.5 px-0 [&_svg]:size-4.5" onClick={handlePrevious}>
+        <Button variant="outline" className="size-6.5 px-0 [&_svg]:size-4.5" title="上一月" onClick={handlePrevious}>
           <ChevronLeft />
         </Button>
 
         <p className="text-sm text-muted-foreground">{rangeText(view, selectedDate)}</p>
 
-        <Button variant="outline" className="size-6.5 px-0 [&_svg]:size-4.5" onClick={handleNext}>
+        <Button variant="outline" className="size-6.5 px-0 [&_svg]:size-4.5" title="下一月" onClick={handleNext}>
           <ChevronRight />
         </Button>
       </div>

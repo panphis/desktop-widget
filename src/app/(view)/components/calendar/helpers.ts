@@ -12,7 +12,6 @@ import {
   startOfMonth,
   endOfMonth,
   endOfWeek,
-  format,
   parseISO,
   differenceInMinutes,
   eachDayOfInterval,
@@ -27,12 +26,13 @@ import {
 } from "date-fns";
 
 import type { ICalendarCell, IEvent } from "./interfaces";
-import type { TCalendarView, TVisibleHours, TWorkingHours } from "./types";
+import type { TCalendarView, TVisibleHours } from "./types";
+import { formatTime } from "@/lib/format";
 
 // ================ Header helper functions ================ //
 
 export function rangeText(view: TCalendarView, date: Date) {
-  const formatString = "MMM d, yyyy";
+  const formatString = "YYYY年 MMM d日";
   let start: Date;
   let end: Date;
 
@@ -50,16 +50,16 @@ export function rangeText(view: TCalendarView, date: Date) {
       end = endOfMonth(date);
       break;
     case "week":
-      start = startOfWeek(date);
-      end = endOfWeek(date);
+      start = startOfWeek(date, { weekStartsOn: 1 });
+      end = endOfWeek(date, { weekStartsOn: 1 });
       break;
     case "day":
-      return format(date, formatString);
+      return formatTime(date, formatString);
     default:
       return "Error while formatting ";
   }
 
-  return `${format(start, formatString)} - ${format(end, formatString)}`;
+  return `${formatTime(start, formatString)} - ${formatTime(end, formatString)}`;
 }
 
 export function navigateDate(date: Date, view: TCalendarView, direction: "previous" | "next"): Date {
@@ -79,7 +79,7 @@ export function getEventsCount(events: IEvent[], date: Date, view: TCalendarView
     agenda: isSameMonth,
     year: isSameYear,
     day: isSameDay,
-    week: isSameWeek,
+    week: (date1: Date, date2: Date) => isSameWeek(date1, date2, { weekStartsOn: 1 }),
     month: isSameMonth,
   };
 
@@ -168,7 +168,11 @@ export function getCalendarCells(selectedDate: Date): ICalendarCell[] {
   const currentMonth = selectedDate.getMonth();
 
   const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
-  const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
+  const getFirstDayOfMonth = (year: number, month: number) => {
+    const day = new Date(year, month, 1).getDay();
+    // 将周日(0)转换为6，其他日期减1，这样周一(1)变成0，周二(2)变成1，以此类推
+    return day === 0 ? 6 : day - 1;
+  };
 
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);

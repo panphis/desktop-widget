@@ -25,11 +25,12 @@ export function CalendarHeader() {
       <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:justify-between">
         <div className="flex w-full items-center gap-1.5">
           <div className="inline-flex first:rounded-r-none last:rounded-l-none [&:not(:first-child):not(:last-child)]:rounded-none">
-            <Button onClick={() => setView('day')} aria-label="View by day" size="icon" variant={view === "day" ? "default" : "outline"} className="rounded-r-none [&_svg]:size-5">
+            <Button title="按天" onClick={() => setView('day')} aria-label="View by day" size="icon" variant={view === "day" ? "default" : "outline"} className="rounded-r-none [&_svg]:size-5">
               <List strokeWidth={1.8} />
             </Button>
 
             <Button
+              title="按周"
               aria-label="View by week"
               size="icon"
               variant={view === "week" ? "default" : "outline"}
@@ -40,6 +41,7 @@ export function CalendarHeader() {
             </Button>
 
             <Button
+              title="按月"
               aria-label="View by month"
               size="icon"
               variant={view === "month" ? "default" : "outline"}
@@ -50,6 +52,7 @@ export function CalendarHeader() {
             </Button>
 
             <Button
+              title="按年"
               aria-label="View by year"
               size="icon"
               variant={view === "year" ? "default" : "outline"}
@@ -60,6 +63,7 @@ export function CalendarHeader() {
             </Button>
 
             <Button
+              title="按日程"
               aria-label="View by agenda"
               size="icon"
               variant={view === "agenda" ? "default" : "outline"}
@@ -74,7 +78,7 @@ export function CalendarHeader() {
         <AddEventDialog>
           <Button className="w-full sm:w-auto">
             <Plus />
-            Add Event
+            创建事件
           </Button>
         </AddEventDialog>
       </div>
