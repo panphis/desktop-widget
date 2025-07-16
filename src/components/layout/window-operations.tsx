@@ -3,7 +3,7 @@
 
 import { useEffect, useState, type FC } from "react"
 import { Button } from "@/components/ui";
-import { Minimize, Maximize, X } from "lucide-react";
+import { Minimize, Maximize, X, Minus } from "lucide-react";
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
 
@@ -30,7 +30,15 @@ export const WindowOperations: FC = () => {
         window.close();
     }
 
+    const handleMinimize = async () => {
+        const window = await getCurrentWindow();
+        window.minimize();
+    }
+
     return (<div className="flex items-center gap-2">
+        <Button variant="ghost" size="icon" onClick={handleMinimize}>
+            <Minus /> 
+        </Button>
         <Button variant="ghost" size="icon" onClick={toggleFullscreen}>
             {
                 isFullscreen ? <Minimize /> : <Maximize />

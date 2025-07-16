@@ -11,6 +11,8 @@ import { Dialog, DialogHeader, DialogClose, DialogContent, DialogTrigger, Dialog
 import { eventSchema } from "../../schemas";
 import type { TEventFormData } from "../../schemas";
 import { EventForm } from "./event-form";
+import { useEvents } from "../../hooks/use-events";
+import { useCalendar } from "../../contexts/calendar-context";
 
 interface IProps {
   children: React.ReactNode;
@@ -22,6 +24,9 @@ export function AddEventDialog({ children, startDate }: IProps) {
 
   const { isOpen, onClose, onToggle } = useDisclosure();
   const formId = useId();
+  const { createEvent } = useEvents();
+  const { refreshEvents } = useCalendar();
+  
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -31,11 +36,15 @@ export function AddEventDialog({ children, startDate }: IProps) {
     },
   });
 
-  const onSubmit = (values: TEventFormData) => {
-    // TO DO: Create use-add-event hook
-    console.log(values);
-    onClose();
-    form.reset();
+  const onSubmit = async (values: TEventFormData) => {
+    try {
+      await createEvent(values);
+      await refreshEvents();
+      onClose();
+      form.reset();
+    } catch (error) {
+      console.error("创建事件失败:", error);
+    }
   };
 
   useEffect(() => {
@@ -51,9 +60,6 @@ export function AddEventDialog({ children, startDate }: IProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>新建事件</DialogTitle>
-          <DialogDescription>
-            这是一个使用表单的示例。在实际应用中，您需要调用 API 来创建事件。
-          </DialogDescription>
         </DialogHeader>
 
         <EventForm onSubmit={onSubmit} formId={formId} onCancel={onClose} />

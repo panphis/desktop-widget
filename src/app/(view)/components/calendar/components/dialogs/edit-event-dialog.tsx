@@ -7,7 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useDisclosure } from "@/hooks/use-disclosure";
 
-import { useUpdateEvent } from "../../hooks/use-update-event";;
+import { useEvents } from "../../hooks/use-events";
+import { useCalendar } from "../../contexts/calendar-context";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogHeader, DialogClose, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
@@ -26,7 +27,8 @@ export function EditEventDialog({ children, event }: IProps) {
   const { isOpen, onClose, onToggle } = useDisclosure();
 
   const formId = useId();
-  const { updateEvent } = useUpdateEvent();
+  const { updateEvent } = useEvents();
+  const { refreshEvents } = useCalendar();
 
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
@@ -39,19 +41,14 @@ export function EditEventDialog({ children, event }: IProps) {
     },
   });
 
-  const onSubmit = (values: TEventFormData) => {
-    const startDateTime = new Date(values.startDate);
-    const endDateTime = new Date(values.endDate);
-    updateEvent({
-      ...event,
-      title: values.title,
-      color: values.color,
-      description: values.description,
-      startDate: startDateTime.toISOString(),
-      endDate: endDateTime.toISOString(),
-    });
-
-    onClose();
+  const onSubmit = async (values: TEventFormData) => {
+    try {
+      await updateEvent(event.id, values);
+      await refreshEvents();
+      onClose();
+    } catch (error) {
+      console.error("更新事件失败:", error);
+    }
   };
 
   return (

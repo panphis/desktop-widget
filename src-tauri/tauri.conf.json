@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "desktop-widget",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "com.desktop-widget.dev",
   "build": {
     "frontendDist": "../out",
     "devUrl": "http://localhost:8088",
@@ -22,7 +22,7 @@
         "transparent": true,
         "decorations": false,
         "fullscreen": false,
-        "visible": false
+        "visible": true
       },
       {
         "label": "splashscreen",
@@ -33,7 +33,7 @@
         "transparent": false,
         "decorations": false,
         "fullscreen": false,
-        "visible": true,
+        "visible": false,
         "url": "/splashscreen"
       }
     ],
@@ -42,7 +42,14 @@
     }
   },
   "plugins": {
-    "autostart": null
+    "autostart": null,
+    "windowState": {
+      "default": {
+        "maximize": false,
+        "width": 800,
+        "height": 800
+      }
+    }
   },
   "bundle": {
     "active": true,

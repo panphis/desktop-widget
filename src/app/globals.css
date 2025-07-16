@@ -41,10 +41,13 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-dialog-background: var(--dialog-background);
 }
 :root {
   --radius: 0.65rem;
-  --background: oklch(1 0 0);
+  --dialog-background: oklch(1 0 0);
+  --card-background: oklch(1 0 0);
+  --background: oklab(1 0 0 / 0.75);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -79,7 +82,9 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  --dialog-background: oklch(0 0 0);
+  --card-background: oklch(0 0 0);
+  --background: oklab(0 0 0 / 0.65);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);

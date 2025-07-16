@@ -1,170 +1,180 @@
 "use client";
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, CheckCircle2, Circle } from "lucide-react";
+import { Trash2, Plus, Calendar } from "lucide-react";
+import type { EventResponse } from "./calendar/hooks/use-events";
 
-interface Todo {
+interface TodoItem {
   id: number;
-  text: string;
-  completed: boolean;
-  createdAt: Date;
+  title: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  color: string;
 }
 
 export function TodoList() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodo, setNewTodo] = useState("");
+  const [todos, setTodos] = useState<TodoItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [newTodo, setNewTodo] = useState({
+    title: "",
+    description: "",
+    start_date: new Date().toISOString().split('T')[0],
+    end_date: new Date().toISOString().split('T')[0],
+    color: "blue"
+  });
 
-  const addTodo = () => {
-    if (newTodo.trim() !== "") {
-      const todo: Todo = {
-        id: Date.now(),
-        text: newTodo.trim(),
-        completed: false,
-        createdAt: new Date(),
-      };
-      setTodos([...todos, todo]);
-      setNewTodo("");
+  const fetchTodos = async () => {
+    setLoading(true);
+    try {
+      const events = await invoke<EventResponse[]>("get_all_events");
+      setTodos(events);
+    } catch (error) {
+      console.error("获取待办事项失败:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const toggleTodo = (id: number) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+  const addTodo = async () => {
+    if (!newTodo.title.trim()) return;
+    
+    try {
+      const todo = await invoke<EventResponse>("create_event", {
+        request: {
+          title: newTodo.title,
+          description: newTodo.description,
+          start_date: new Date(newTodo.start_date).toISOString(),
+          end_date: new Date(newTodo.end_date).toISOString(),
+          color: newTodo.color,
+        },
+      });
+      setTodos(prev => [...prev, todo]);
+      setNewTodo({
+        title: "",
+        description: "",
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: new Date().toISOString().split('T')[0],
+        color: "blue"
+      });
+    } catch (error) {
+      console.error("添加待办事项失败:", error);
+    }
   };
 
-  const deleteTodo = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+  const deleteTodo = async (id: number) => {
+    try {
+      const success = await invoke<boolean>("delete_event", { id });
+      if (success) {
+        setTodos(prev => prev.filter(todo => todo.id !== id));
+      }
+    } catch (error) {
+      console.error("删除待办事项失败:", error);
+    }
   };
 
-  const completedCount = todos.filter((todo) => todo.completed).length;
-  const totalCount = todos.length;
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  const getColorClass = (color: string) => {
+    const colorMap: Record<string, string> = {
+      blue: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+      green: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      red: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+      yellow: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+      purple: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+      orange: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+      gray: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
+    };
+    return colorMap[color] || colorMap.gray;
+  };
 
   return (
-    <div className="h-full">
-      <Card className="shadow-lg h-full flex flex-col bg-transparent">
-        <CardHeader className="text-center flex-shrink-0">
-          <CardTitle className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 flex items-center justify-center gap-2">
-            <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
-            我的待办清单
-          </CardTitle>
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mt-4">
-            <Badge variant="outline" className="text-xs sm:text-sm">
-              总计: {totalCount}
-            </Badge>
-            <Badge
-              variant="default"
-              className="text-xs sm:text-sm bg-green-600"
-            >
-              已完成: {completedCount}
-            </Badge>
-            <Badge variant="secondary" className="text-xs sm:text-sm">
-              待完成: {totalCount - completedCount}
-            </Badge>
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-4 flex-1 overflow-hidden flex flex-col">
-          {/* 添加新任务 */}
-          <div className="flex gap-2 flex-shrink-0">
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Calendar className="h-5 w-5" />
+          待办事项
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* 添加新待办事项 */}
+        <div className="space-y-2">
+          <Input
+            placeholder="输入标题..."
+            value={newTodo.title}
+            onChange={(e) => setNewTodo(prev => ({ ...prev, title: e.target.value }))}
+            onKeyPress={(e) => e.key === 'Enter' && addTodo()}
+          />
+          <Input
+            placeholder="输入描述..."
+            value={newTodo.description}
+            onChange={(e) => setNewTodo(prev => ({ ...prev, description: e.target.value }))}
+            onKeyPress={(e) => e.key === 'Enter' && addTodo()}
+          />
+          <div className="flex gap-2">
             <Input
-              type="text"
-              placeholder="添加新的待办事项..."
-              value={newTodo}
-              onChange={(e) => setNewTodo(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  addTodo();
-                }
-              }}
-              className="flex-1"
+              type="date"
+              value={newTodo.start_date}
+              onChange={(e) => setNewTodo(prev => ({ ...prev, start_date: e.target.value }))}
             />
-            <Button onClick={addTodo} className="px-3 sm:px-4">
-              <Plus className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">添加</span>
-            </Button>
+            <Input
+              type="date"
+              value={newTodo.end_date}
+              onChange={(e) => setNewTodo(prev => ({ ...prev, end_date: e.target.value }))}
+            />
           </div>
+          <Button onClick={addTodo} className="w-full" size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            添加待办事项
+          </Button>
+        </div>
 
-          {/* 任务列表 */}
-          <div className="space-y-2 flex-1 overflow-y-auto">
-            {todos.length === 0 ? (
-              <div className="text-center py-8 sm:py-12 text-gray-500">
-                <Circle className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4 opacity-50" />
-                <p className="text-base sm:text-lg">暂无待办事项</p>
-                <p className="text-xs sm:text-sm">添加一个新任务开始吧！</p>
-              </div>
-            ) : (
-              todos.map((todo) => (
-                <Card
-                  key={todo.id}
-                  className={`transition-all duration-200 hover:shadow-md ${
-                    todo.completed
-                      ? "bg-gray-50 border-gray-200"
-                      : "bg-white border-gray-300"
-                  }`}
+        {/* 待办事项列表 */}
+        <div className="space-y-2 max-h-96 overflow-y-auto">
+          {loading ? (
+            <div className="text-center text-sm text-gray-500">加载中...</div>
+          ) : todos.length === 0 ? (
+            <div className="text-center text-sm text-gray-500">暂无待办事项</div>
+          ) : (
+            todos.map((todo) => (
+              <div
+                key={todo.id}
+                className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-medium truncate">{todo.title}</h4>
+                    <Badge className={getColorClass(todo.color)} variant="secondary">
+                      {todo.color}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                    {todo.description}
+                  </p>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {new Date(todo.start_date).toLocaleDateString()} - {new Date(todo.end_date).toLocaleDateString()}
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteTodo(todo.id)}
+                  className="text-red-500 hover:text-red-700"
                 >
-                  <CardContent className="p-3 sm:p-4">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <Checkbox
-                        id={`todo-${todo.id}`}
-                        checked={todo.completed}
-                        onCheckedChange={() => toggleTodo(todo.id)}
-                        className="h-4 w-4 sm:h-5 sm:w-5"
-                      />
-                      <label
-                        htmlFor={`todo-${todo.id}`}
-                        className={`flex-1 cursor-pointer text-xs sm:text-sm font-medium transition-all ${
-                          todo.completed
-                            ? "line-through text-gray-500"
-                            : "text-gray-900"
-                        }`}
-                      >
-                        {todo.text}
-                      </label>
-                      <div className="flex items-center gap-1 sm:gap-2">
-                        <span className="text-xs text-gray-400 hidden sm:block">
-                          {todo.createdAt.toLocaleDateString("zh-CN")}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteTodo(todo.id)}
-                          className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
-
-          {/* 进度条 */}
-          {totalCount > 0 && (
-            <div className="mt-4 flex-shrink-0">
-              <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-2">
-                <span>完成进度</span>
-                <span>{Math.round((completedCount / totalCount) * 100)}%</span>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${(completedCount / totalCount) * 100}%` }}
-                ></div>
-              </div>
-            </div>
+            ))
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

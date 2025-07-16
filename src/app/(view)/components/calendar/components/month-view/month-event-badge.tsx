@@ -109,7 +109,7 @@ export function MonthEventBadge({ event, cellDate, eventCurrentDay, eventTotalDa
               <p className="flex-1 truncate font-semibold">
                 {eventCurrentDay && (
                   <span className="text-xs">
-                    Day {eventCurrentDay} of {eventTotalDays} •{" "}
+                    第 {eventCurrentDay} 天 (共 {eventTotalDays} 天) •{" "}
                   </span>
                 )}
                 {event.title}

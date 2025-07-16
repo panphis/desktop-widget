@@ -48,14 +48,6 @@ export {
   CarouselNext,
   CarouselPrevious,
 } from "./carousel";
-export {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartStyle,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "./chart";
 export { Checkbox } from "./checkbox";
 export {
   Collapsible,

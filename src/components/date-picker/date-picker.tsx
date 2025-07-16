@@ -57,10 +57,10 @@ const DatePicker = forwardRef<DatePickerRefType, DateRangePickerProps>(
 							console.warn('Invalid date value provided to DatePicker');
 						}
 					},
-					focus: () => {},
-					select: () => {},
+					focus: () => { },
+					select: () => { },
 					setCustomValidity: console.log,
-					reportValidity: () => {},
+					reportValidity: () => { },
 				};
 			},
 			[value, onChange]
@@ -98,8 +98,8 @@ const DatePicker = forwardRef<DatePickerRefType, DateRangePickerProps>(
 			onChange(date);
 		};
 
-		const handleTimeChange = (field: 'hours' | 'minutes' | 'seconds', value: string) => {
-			const numValue = Number.parseInt(value) || 0;
+		const handleTimeChange = (field: 'hours' | 'minutes' | 'seconds', inputValue: string) => {
+			const numValue = Number.parseInt(inputValue) || 0;
 			let clampedValue = numValue;
 			if (field === 'hours') {
 				clampedValue = Math.max(0, Math.min(23, numValue));
@@ -113,6 +113,7 @@ const DatePicker = forwardRef<DatePickerRefType, DateRangePickerProps>(
 				seconds: time.seconds,
 				[field]: clampedValue.toString().padStart(2, '0'),
 			};
+
 			const newDate = new Date(value ? value : new Date());
 			newDate.setHours(Number.parseInt(newTime.hours));
 			newDate.setMinutes(Number.parseInt(newTime.minutes));
@@ -148,6 +149,7 @@ const DatePicker = forwardRef<DatePickerRefType, DateRangePickerProps>(
 		};
 
 		const handleClear = (e: React.MouseEvent<HTMLButtonElement>): void => {
+			console.log('handleClear');
 			e.stopPropagation();
 			e.preventDefault();
 			updateValue(undefined);
@@ -162,16 +164,14 @@ const DatePicker = forwardRef<DatePickerRefType, DateRangePickerProps>(
 								disabled={disable}
 								variant={'outline'}
 								id={id}
+								type='button'
 								className={cn('w-full justify-start text-left font-normal')}
+								onClick={() => setOpen(true)}
 							>
 								<CalendarIcon className="mr-2 h-4 w-4" />
 								{value ? formatTime(value, 'YYYY年MM月DD日 HH:mm:ss') : placeholder}
-								{value && (
-									<Button onClick={handleClear} asChild variant="ghost" size="icon" className="m-0 p-0 w-max">
-										<XIcon className="h-4 w-4" />
-									</Button>
-								)}
 							</Button>
+
 						</PopoverTrigger>
 						<PopoverContent className="w-auto p-0" align="start">
 							<div className="p-4 space-y-4">
@@ -249,9 +249,18 @@ const DatePicker = forwardRef<DatePickerRefType, DateRangePickerProps>(
 										/>
 									</div>
 								</div>
-								<Button className="w-full" onClick={() => setOpen(false)}>
-									确认选择
-								</Button>
+
+								<div className='flex justify-end'>
+
+									{value && (
+										<Button onClick={handleClear} asChild variant="ghost" size="icon" className="m-0 p-0 w-max">
+											清除<XIcon className="h-4 w-4" />
+										</Button>
+									)}
+									<Button className="w-full" onClick={() => setOpen(false)}>
+										确认选择
+									</Button>
+								</div>
 							</div>
 						</PopoverContent>
 					</Popover>

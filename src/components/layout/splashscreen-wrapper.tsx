@@ -1,12 +1,9 @@
 "use client"
 
 import { invoke } from "@tauri-apps/api/core";
-import { useEffect } from "react";
-
+import { useEffect, useState } from "react";
 
 async function setup() {
-    // 模拟执行一些重量级的设置任务
-    // await new Promise(resolve => setTimeout(resolve, 3000));
     try {
         await invoke('set_complete', { task: 'frontend' });
         console.log('前端设置任务完成！')
@@ -15,25 +12,30 @@ async function setup() {
     }
 }
 
-// // Effectively a JavaScript main function
-// window.addEventListener("DOMContentLoaded", () => {
-//     setup()
-// });
-
 type SplashscreenWrapperProps = {
     children: React.ReactNode
 }
 
-
 export function SplashscreenWrapper({ children }: SplashscreenWrapperProps) {
+    const [isInitialized, setIsInitialized] = useState(false);
+
     useEffect(() => {
-        // // Effectively a JavaScript main function
-        window.addEventListener("DOMContentLoaded", setup);
-        setup()
-        return () => {
-            window.removeEventListener("DOMContentLoaded", setup);
-        }
-    }, [])
-    return (children)
+        const initializeApp = async () => {
+            try {
+                // 在开发环境中，立即完成初始化
+                await setup();
+                setIsInitialized(true);
+            } catch (error) {
+                console.error('应用初始化失败:', error);
+                // 即使失败也继续显示，避免卡死
+                setIsInitialized(true);
+            }
+        };
+
+        // 立即开始初始化，减少延迟
+        initializeApp();
+    }, []);
+
+    return <>{children}</>;
 }
 

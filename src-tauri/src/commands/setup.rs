@@ -2,8 +2,6 @@
 use tauri::{AppHandle, Manager, State};
 use std::sync::Mutex;
 
-
-
 // Create a struct we'll use to track the completion of
 // setup related tasks
 pub struct SetupState {
@@ -20,8 +18,6 @@ impl SetupState {
     }
 }
 
-
-
 #[tauri::command]
 pub async fn set_complete(
     app: AppHandle,
@@ -37,25 +33,20 @@ pub async fn set_complete(
     }
     // Check if both tasks are completed
     if state_lock.backend_task && state_lock.frontend_task {
-        // Setup is complete, we can close the splashscreen
-        // and unhide the main window!
-        let splash_window = app.get_webview_window("splashscreen").unwrap();
-        let main_window = app.get_webview_window("main").unwrap();
-        splash_window.close().unwrap();
-        main_window.show().unwrap();
+        // Setup 完成，可以从启动窗口切换到主窗口
+        if let Some(splash_window) = app.get_webview_window("splashscreen") {
+            if let Some(_main_window) = app.get_webview_window("main") {
+                // 在开发环境中，直接关闭启动窗口，主窗口已经可见
+                splash_window.close().unwrap();
+            }
+        }
     }
     Ok(())
 }
 
 // An async function that does some heavy setup task
 pub async fn setup(app: AppHandle) -> Result<(), ()> {
-  // Fake performing some heavy action for 3 seconds
-  // println!("Performing really heavy backend setup task...");
-  // sleep(Duration::from_secs(3)).await;
-  // println!("Backend setup task completed!");
-  // Set the backend task as being completed
-  // Commands can be ran as regular functions as long as you take
-  // care of the input arguments yourself
+  // 在开发环境中，立即完成后端任务
   set_complete(
       app.clone(),
       app.state::<Mutex<SetupState>>(),

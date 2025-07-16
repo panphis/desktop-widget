@@ -1,4 +1,4 @@
-import { startOfWeek, addDays, format, parseISO, isSameDay, areIntervalsOverlapping } from "date-fns";
+import { startOfWeek, addDays, parseISO, isSameDay, areIntervalsOverlapping } from "date-fns";
 
 import { useCalendar } from "../../contexts/calendar-context";
 
@@ -55,7 +55,7 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
               {hours.map((hour, index) => (
                 <div key={hour} className="relative" style={{ height: "96px" }}>
                   <div className="absolute -top-3 right-2 flex h-6 items-center">
-                    {index !== 0 && <span className="text-xs text-muted-foreground">{format(new Date().setHours(hour, 0, 0, 0), "hh a")}</span>}
+                    {index !== 0 && <span className="text-xs text-muted-foreground">{formatTime(new Date().setHours(hour, 0, 0, 0), "a H点")}</span>}
                   </div>
                 </div>
               ))}

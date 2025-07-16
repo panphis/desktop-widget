@@ -6,30 +6,20 @@ use tauri_plugin_autostart::MacosLauncher;
 use commands::greet::greet;
 use commands::settings::{is_auto_start_enabled,set_enable_auto_start};
 use commands::setup::{set_complete,setup};
+use commands::events::{create_event, get_all_events, get_event_by_id, update_event, delete_event, get_events_by_date_range};
 use tauri::async_runtime::spawn;
 use std::sync::Mutex;
-
-
-
-
-
-
-
-
-
+use tauri_plugin_window_state::{Builder, StateFlags};
+use std::time::Instant;
 
 pub fn run() {
+  let start_time = Instant::now();
 
   let app_handle = tauri::Builder::default()
-      .plugin(tauri_plugin_autostart::init(
-          MacosLauncher::LaunchAgent,
-          Some(vec![]),
-      ))
+      .plugin(Builder::default().with_state_flags(StateFlags::default()).build())
+      .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![])))
       .manage(Mutex::new(commands::setup::SetupState::new()))
-      .setup(|app| {
-
-
-
+      .setup(move |app| {
         if cfg!(debug_assertions) {
           app.handle().plugin(
             tauri_plugin_log::Builder::default()
@@ -37,20 +27,30 @@ pub fn run() {
               .build(),
           )?;
         }
-
-
-
+        
         spawn(setup(app.handle().clone()));
-            // The hook expects an Ok result
+        
+        // 记录启动时间
+        let elapsed = start_time.elapsed();
+        println!("Tauri 应用启动耗时: {:?}", elapsed);
+        
+        // The hook expects an Ok result
         Ok(())
       })
       .invoke_handler(tauri::generate_handler![
         is_auto_start_enabled,
         set_enable_auto_start,
         set_complete,
-        greet
+        greet,
+        create_event,
+        get_all_events,
+        get_event_by_id,
+        update_event,
+        delete_event,
+        get_events_by_date_range
       ]);
 
-    app_handle.run(tauri::generate_context!())
-    .expect("运行 tauri 应用程序时出错");
+    app_handle
+      .run(tauri::generate_context!())
+      .expect("运行 tauri 应用程序时出错");
 }

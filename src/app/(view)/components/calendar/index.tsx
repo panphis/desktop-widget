@@ -1,4 +1,3 @@
-
 import { Settings } from "lucide-react";
 
 import { CalendarProvider } from "./contexts/calendar-context";
@@ -10,7 +9,7 @@ import { getEvents } from "./requests";
 import { ClientContainer } from "./components/client-container";
 
 export async function Calendar() {
-  const [events] = await Promise.all([getEvents()]);
+  const events = await getEvents();
   return (
     <CalendarProvider events={events}>
       <ClientContainer/>
@@ -20,7 +19,7 @@ export async function Calendar() {
             <AccordionTrigger className="flex-none gap-2 py-0 hover:no-underline">
               <div className="flex items-center gap-2">
                 <Settings className="size-4" />
-                <p className="text-base font-semibold">Calendar settings</p>
+                <p className="text-base font-semibold">日历设置</p>
               </div>
             </AccordionTrigger>
 
