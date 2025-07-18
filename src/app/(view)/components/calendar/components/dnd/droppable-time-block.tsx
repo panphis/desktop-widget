@@ -3,8 +3,6 @@
 import { useDrop } from "react-dnd";
 import { parseISO, differenceInMilliseconds } from "date-fns";
 
-import { useUpdateEvent } from "../../hooks/use-update-event";
-
 import { cn } from "@/lib/utils";
 import { ItemTypes } from "./draggable-event";
 
@@ -18,8 +16,6 @@ interface DroppableTimeBlockProps {
 }
 
 export function DroppableTimeBlock({ date, hour, minute, children }: DroppableTimeBlockProps) {
-  const { updateEvent } = useUpdateEvent();
-
   const [{ isOver, canDrop }, drop] = useDrop(
     () => ({
       accept: ItemTypes.EVENT,
@@ -35,11 +31,7 @@ export function DroppableTimeBlock({ date, hour, minute, children }: DroppableTi
         newStartDate.setHours(hour, minute, 0, 0);
         const newEndDate = new Date(newStartDate.getTime() + eventDurationMs);
 
-        updateEvent({
-          ...droppedEvent,
-          startDate: newStartDate.toISOString(),
-          endDate: newEndDate.toISOString(),
-        });
+        // TODO: 更新事件
 
         return { moved: true };
       },
@@ -48,7 +40,7 @@ export function DroppableTimeBlock({ date, hour, minute, children }: DroppableTi
         canDrop: monitor.canDrop(),
       }),
     }),
-    [date, hour, minute, updateEvent]
+    [date, hour, minute]
   );
 
   return (

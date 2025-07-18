@@ -16,11 +16,10 @@ export interface EventResponse {
 
 export function useEvents() {
   const [events, setEvents] = useState<EventResponse[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchEvents = useCallback(async () => {
-    setLoading(true);
     setError(null);
     try {
       const result = await invoke<EventResponse[]>("get_all_events");
@@ -28,12 +27,10 @@ export function useEvents() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "获取事件失败");
     } finally {
-      setLoading(false);
     }
   }, []);
 
   const createEvent = useCallback(async (eventData: TEventFormData) => {
-    setLoading(true);
     setError(null);
     try {
       const newEvent = await invoke<EventResponse>("create_event", {
@@ -51,12 +48,10 @@ export function useEvents() {
       setError(err instanceof Error ? err.message : "创建事件失败");
       throw err;
     } finally {
-      setLoading(false);
     }
   }, []);
 
   const updateEvent = useCallback(async (id: number, eventData: TEventFormData) => {
-    setLoading(true);
     setError(null);
     try {
       const updatedEvent = await invoke<EventResponse>("update_event", {
@@ -75,12 +70,10 @@ export function useEvents() {
       setError(err instanceof Error ? err.message : "更新事件失败");
       throw err;
     } finally {
-      setLoading(false);
     }
   }, []);
 
   const deleteEvent = useCallback(async (id: number) => {
-    setLoading(true);
     setError(null);
     try {
       const success = await invoke<boolean>("delete_event", { id });
@@ -92,12 +85,10 @@ export function useEvents() {
       setError(err instanceof Error ? err.message : "删除事件失败");
       throw err;
     } finally {
-      setLoading(false);
     }
   }, []);
 
   const getEventsByDateRange = useCallback(async (startDate: Date, endDate: Date) => {
-    setLoading(true);
     setError(null);
     try {
       const result = await invoke<EventResponse[]>("get_events_by_date_range", {
@@ -109,13 +100,11 @@ export function useEvents() {
       setError(err instanceof Error ? err.message : "获取日期范围内事件失败");
       throw err;
     } finally {
-      setLoading(false);
     }
   }, []);
 
   return {
     events,
-    loading,
     error,
     fetchEvents,
     createEvent,

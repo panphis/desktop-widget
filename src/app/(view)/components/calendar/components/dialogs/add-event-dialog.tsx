@@ -6,13 +6,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogHeader, DialogClose, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogHeader, DialogClose, DialogContent, DialogTrigger, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 import { eventSchema } from "../../schemas";
 import type { TEventFormData } from "../../schemas";
 import { EventForm } from "./event-form";
 import { useEvents } from "../../hooks/use-events";
-import { useCalendar } from "../../contexts/calendar-context";
 
 interface IProps {
   children: React.ReactNode;
@@ -25,7 +24,6 @@ export function AddEventDialog({ children, startDate }: IProps) {
   const { isOpen, onClose, onToggle } = useDisclosure();
   const formId = useId();
   const { createEvent } = useEvents();
-  const { refreshEvents } = useCalendar();
   
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
@@ -39,7 +37,6 @@ export function AddEventDialog({ children, startDate }: IProps) {
   const onSubmit = async (values: TEventFormData) => {
     try {
       await createEvent(values);
-      await refreshEvents();
       onClose();
       form.reset();
     } catch (error) {

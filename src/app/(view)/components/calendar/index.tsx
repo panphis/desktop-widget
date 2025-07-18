@@ -5,11 +5,11 @@ import { CalendarProvider } from "./contexts/calendar-context";
 import { ChangeBadgeVariantInput } from "./components/change-badge-variant-input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-import { getEvents } from "./requests";
 import { ClientContainer } from "./components/client-container";
+import type { EventResponse } from "./hooks/use-events";
 
 export async function Calendar() {
-  const events = await getEvents();
+  const events:EventResponse[] = [];
   return (
     <CalendarProvider events={events}>
       <ClientContainer/>

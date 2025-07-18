@@ -3,8 +3,6 @@
 import { useDrop } from "react-dnd";
 import { parseISO, differenceInMilliseconds } from "date-fns";
 
-import { useUpdateEvent } from "../../hooks/use-update-event";
-
 import { cn } from "@/lib/utils";
 import { ItemTypes } from "./draggable-event";
 
@@ -16,7 +14,6 @@ interface DroppableDayCellProps {
 }
 
 export function DroppableDayCell({ cell, children }: DroppableDayCellProps) {
-  const { updateEvent } = useUpdateEvent();
 
   const [{ isOver, canDrop }, drop] = useDrop(
     () => ({
@@ -33,11 +30,7 @@ export function DroppableDayCell({ cell, children }: DroppableDayCellProps) {
         newStartDate.setHours(eventStartDate.getHours(), eventStartDate.getMinutes(), eventStartDate.getSeconds(), eventStartDate.getMilliseconds());
         const newEndDate = new Date(newStartDate.getTime() + eventDurationMs);
 
-        updateEvent({
-          ...droppedEvent,
-          startDate: newStartDate.toISOString(),
-          endDate: newEndDate.toISOString(),
-        });
+        // TODO: 更新事件
 
         return { moved: true };
       },
@@ -46,7 +39,7 @@ export function DroppableDayCell({ cell, children }: DroppableDayCellProps) {
         canDrop: monitor.canDrop(),
       }),
     }),
-    [cell.date, updateEvent]
+    [cell.date]
   );
 
   return (

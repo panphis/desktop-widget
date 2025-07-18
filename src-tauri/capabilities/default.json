@@ -31,8 +31,6 @@
 
     "window-state:default",
 
-    "core:tray:default",
-
-    "positioner:default"
+    "core:tray:default"
   ]
 }

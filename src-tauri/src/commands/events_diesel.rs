@@ -2,7 +2,7 @@ use tauri::AppHandle;
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use crate::commands::database_diesel::{
-    Database, Event as DbEvent, NewEvent, UpdateEvent, EventStats, EventFilter
+    Database, Event as DbEvent, EventStats, EventFilter
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -75,7 +75,7 @@ pub struct FilterRequest {
 impl From<DbEvent> for EventResponse {
     fn from(event: DbEvent) -> Self {
         EventResponse {
-            id: event.id.unwrap_or(0),
+            id: event.id,
             title: event.title,
             description: event.description,
             start_date: event.start_date,
@@ -250,6 +250,37 @@ pub async fn get_events_by_date(
     
     let events = db.get_events_by_date(date)
         .map_err(|e| format!("获取指定日期的事件失败: {}", e))?;
+    
+    Ok(events.into_iter().map(EventResponse::from).collect())
+}
+
+#[tauri::command]
+pub async fn get_events_by_month(
+    app: AppHandle,
+    request: MonthRequest,
+) -> Result<Vec<EventResponse>, String> {
+    let db = get_database(&app)?;
+    
+    // 创建月份的开始和结束日期
+    let start_date = chrono::NaiveDate::from_ymd_opt(request.year, request.month, 1)
+        .ok_or("无效的年份或月份")?
+        .and_hms_opt(0, 0, 0)
+        .ok_or("创建开始时间失败")?;
+    
+    let end_date = if request.month == 12 {
+        chrono::NaiveDate::from_ymd_opt(request.year + 1, 1, 1)
+    } else {
+        chrono::NaiveDate::from_ymd_opt(request.year, request.month + 1, 1)
+    }
+    .ok_or("创建结束时间失败")?
+    .and_hms_opt(0, 0, 0)
+    .ok_or("创建结束时间失败")?;
+    
+    let start = DateTime::from_naive_utc_and_offset(start_date, Utc);
+    let end = DateTime::from_naive_utc_and_offset(end_date, Utc);
+    
+    let events = db.get_events_by_date_range(start, end)
+        .map_err(|e| format!("获取指定月份的事件失败: {}", e))?;
     
     Ok(events.into_iter().map(EventResponse::from).collect())
 }

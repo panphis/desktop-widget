@@ -1,7 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { createContext, useContext, useState } from "react";
 
 import type { Dispatch, SetStateAction } from "react";
 import type { IEvent } from "../interfaces";
@@ -17,10 +16,6 @@ interface ICalendarContext {
   setBadgeVariant: (variant: TBadgeVariant) => void;
   visibleHours: TVisibleHours;
   setVisibleHours: Dispatch<SetStateAction<TVisibleHours>>;
-  events: IEvent[];
-  setLocalEvents: Dispatch<SetStateAction<IEvent[]>>;
-  refreshEvents: () => Promise<void>;
-  loading: boolean;
 }
 
 const CalendarContext = createContext({} as ICalendarContext);
@@ -39,7 +34,6 @@ const convertEventResponseToIEvent = (event: EventResponse): IEvent => ({
 
 export function CalendarProvider({
   children,
-  events: initialEvents,
 }: {
   children: React.ReactNode;
   events: EventResponse[];
@@ -49,12 +43,8 @@ export function CalendarProvider({
     useState<TVisibleHours>(VISIBLE_HOURS);
 
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [loading, setLoading] = useState(false);
 
-  // 转换初始事件
-  const [localEvents, setLocalEvents] = useState<IEvent[]>(
-    initialEvents.map(convertEventResponseToIEvent)
-  );
+
   const [view, setView] = useState<TCalendarView>("day");
 
   const handleSelectDate = (date: Date | undefined) => {
@@ -62,17 +52,6 @@ export function CalendarProvider({
     setSelectedDate(date);
   };
 
-  const refreshEvents = async () => {
-    setLoading(true);
-    try {
-      const events = await invoke<EventResponse[]>("get_all_events");
-      setLocalEvents(events.map(convertEventResponseToIEvent));
-    } catch (error) {
-      console.error("刷新事件失败:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <CalendarContext.Provider
@@ -85,10 +64,6 @@ export function CalendarProvider({
         setBadgeVariant,
         visibleHours,
         setVisibleHours,
-        events: localEvents,
-        setLocalEvents,
-        refreshEvents,
-        loading,
       }}
     >
       {children}

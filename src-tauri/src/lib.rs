@@ -15,6 +15,7 @@ use commands::events_diesel::{
     soft_delete_event,
     get_events_by_date_range,
     get_events_by_date,
+    get_events_by_month,
     search_events,
     get_recent_events,
     get_upcoming_events,
@@ -71,10 +72,12 @@ pub fn run() {
         get_recent_events,
         get_upcoming_events,
         get_event_stats,
-        cleanup_deleted_events
+        cleanup_deleted_events,
+        get_events_with_filter
       ]);
 
-    app_handle
-      .run(tauri::generate_context!())
-      .expect("运行 tauri 应用程序时出错");
+    if let Err(e) = app_handle.run(tauri::generate_context!()) {
+        eprintln!("运行 tauri 应用程序时出错: {:?}", e);
+        std::process::exit(1);
+    }
 }

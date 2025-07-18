@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use tauri::{AppHandle, Manager};
 use std::sync::{Arc, Mutex};
+use diesel_migrations::MigrationHarness;
 
 // 数据库表结构定义
 table! {
@@ -26,8 +27,7 @@ table! {
 #[diesel(table_name = events)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Event {
-    #[diesel(column_name = id)]
-    pub id: Option<i32>,
+    pub id: i32,
     pub title: String,
     pub description: String,
     pub start_date: String,
@@ -97,11 +97,26 @@ impl Database {
         std::fs::create_dir_all(&app_dir)?;
         
         let db_path = app_dir.join("events.db");
-        let conn = SqliteConnection::establish(&db_path.to_string_lossy())?;
-        
+        let mut conn = SqliteConnection::establish(&db_path.to_string_lossy())?;
+
         // 运行数据库迁移
-        embed_migrations!();
-        embedded_migrations::run(&conn)?;
+        let migrations_path = std::path::Path::new("migrations");
+        if migrations_path.exists() {
+            match conn.run_pending_migrations(diesel_migrations::FileBasedMigrations::from_path(migrations_path)?) {
+                Ok(_) => println!("数据库迁移成功"),
+                Err(e) => {
+                    let error_msg = e.to_string();
+                    // 如果迁移失败，检查是否是表已存在的错误
+                    if error_msg.contains("table events already exists") {
+                        println!("数据库表已存在，跳过迁移");
+                    } else {
+                        return Err(format!("数据库迁移失败: {}", e).into());
+                    }
+                }
+            }
+        } else {
+            return Err("迁移目录不存在，请确保 migrations 目录存在并包含正确的迁移文件".into());
+        }
         
         Ok(Database { 
             conn: Arc::new(Mutex::new(conn)) 
@@ -114,13 +129,16 @@ impl Database {
         
         let conn = &mut *self.conn.lock().unwrap();
         
+        // 先插入数据
         diesel::insert_into(events)
             .values(event_data)
             .execute(conn)?;
         
-        // 获取插入的ID
-        let inserted_id = diesel::select(diesel::dsl::sql::<diesel::sql_types::Integer>("last_insert_rowid()"))
-            .get_result::<i32>(conn)?;
+        // 使用 Diesel ORM 查询最后插入的ID
+        let inserted_id = events
+            .order(id.desc())
+            .select(id)
+            .first::<i32>(conn)?;
         
         Ok(inserted_id)
     }
@@ -191,7 +209,6 @@ impl Database {
     /// 时间范围查询 - 查找与指定时间范围重叠的所有事件
     pub fn get_events_by_date_range(&self, start: DateTime<Utc>, end: DateTime<Utc>) -> Result<Vec<Event>, DieselError> {
         use crate::commands::database_diesel::events::dsl::*;
-        use diesel::dsl::sql;
         
         let conn = &mut *self.conn.lock().unwrap();
         let start_str = start.to_rfc3339();
@@ -200,20 +217,14 @@ impl Database {
         events
             .filter(is_deleted.eq(0))
             .filter(
-                sql::<diesel::sql_types::Bool>(
-                    "(start_date >= ? AND start_date <= ?) OR 
-                     (end_date >= ? AND end_date <= ?) OR 
-                     (start_date <= ? AND end_date >= ?) OR 
-                     (start_date >= ? AND end_date <= ?)"
-                )
-                .bind::<diesel::sql_types::Text, _>(&start_str)
-                .bind::<diesel::sql_types::Text, _>(&end_str)
-                .bind::<diesel::sql_types::Text, _>(&start_str)
-                .bind::<diesel::sql_types::Text, _>(&end_str)
-                .bind::<diesel::sql_types::Text, _>(&start_str)
-                .bind::<diesel::sql_types::Text, _>(&end_str)
-                .bind::<diesel::sql_types::Text, _>(&start_str)
-                .bind::<diesel::sql_types::Text, _>(&end_str)
+                start_date.ge(start_str.clone())
+                    .and(start_date.le(end_str.clone()))
+                    .or(end_date.ge(start_str.clone())
+                        .and(end_date.le(end_str.clone())))
+                    .or(start_date.le(start_str.clone())
+                        .and(end_date.ge(end_str.clone())))
+                    .or(start_date.ge(start_str)
+                        .and(end_date.le(end_str)))
             )
             .order(start_date.asc())
             .load::<Event>(conn)
@@ -233,7 +244,6 @@ impl Database {
     /// 搜索事件
     pub fn search_events(&self, query: &str) -> Result<Vec<Event>, DieselError> {
         use crate::commands::database_diesel::events::dsl::*;
-        use diesel::dsl::sql;
         
         let conn = &mut *self.conn.lock().unwrap();
         let search_pattern = format!("%{}%", query);
@@ -241,9 +251,8 @@ impl Database {
         events
             .filter(is_deleted.eq(0))
             .filter(
-                sql::<diesel::sql_types::Bool>("title LIKE ? OR description LIKE ?")
-                    .bind::<diesel::sql_types::Text, _>(&search_pattern)
-                    .bind::<diesel::sql_types::Text, _>(&search_pattern)
+                title.like(search_pattern.clone())
+                    .or(description.like(search_pattern))
             )
             .order(start_date.asc())
             .load::<Event>(conn)
@@ -280,7 +289,6 @@ impl Database {
     /// 获取事件统计
     pub fn get_event_stats(&self) -> Result<EventStats, DieselError> {
         use crate::commands::database_diesel::events::dsl::*;
-        use diesel::dsl::count;
         
         let conn = &mut *self.conn.lock().unwrap();
         
@@ -296,23 +304,18 @@ impl Database {
             let start_of_day = today.and_hms_opt(0, 0, 0).unwrap();
             let end_of_day = today.and_hms_opt(23, 59, 59).unwrap();
             
-            let start_str = DateTime::from_naive_utc_and_offset(start_of_day, Utc).to_rfc3339();
-            let end_str = DateTime::from_naive_utc_and_offset(end_of_day, Utc).to_rfc3339();
+            let start_str = DateTime::<Utc>::from_naive_utc_and_offset(start_of_day, Utc).to_rfc3339();
+            let end_str = DateTime::<Utc>::from_naive_utc_and_offset(end_of_day, Utc).to_rfc3339();
             
             events
                 .filter(is_deleted.eq(0))
                 .filter(
-                    diesel::dsl::sql::<diesel::sql_types::Bool>(
-                        "(start_date >= ? AND start_date <= ?) OR 
-                         (end_date >= ? AND end_date <= ?) OR 
-                         (start_date <= ? AND end_date >= ?)"
-                    )
-                    .bind::<diesel::sql_types::Text, _>(&start_str)
-                    .bind::<diesel::sql_types::Text, _>(&end_str)
-                    .bind::<diesel::sql_types::Text, _>(&start_str)
-                    .bind::<diesel::sql_types::Text, _>(&end_str)
-                    .bind::<diesel::sql_types::Text, _>(&start_str)
-                    .bind::<diesel::sql_types::Text, _>(&end_str)
+                    start_date.ge(start_str.clone())
+                        .and(start_date.le(end_str.clone()))
+                        .or(end_date.ge(start_str.clone())
+                            .and(end_date.le(end_str.clone())))
+                        .or(start_date.le(start_str)
+                            .and(end_date.ge(end_str)))
                 )
                 .count()
                 .get_result(conn)?
@@ -349,7 +352,6 @@ impl Database {
     /// 使用过滤器查询事件
     pub fn get_events_with_filter(&self, filter: &EventFilter) -> Result<Vec<Event>, DieselError> {
         use crate::commands::database_diesel::events::dsl::*;
-        use diesel::dsl::sql;
         
         let conn = &mut *self.conn.lock().unwrap();
         
@@ -361,20 +363,14 @@ impl Database {
             let end_str = end.to_rfc3339();
             
             query = query.filter(
-                sql::<diesel::sql_types::Bool>(
-                    "(start_date >= ? AND start_date <= ?) OR 
-                     (end_date >= ? AND end_date <= ?) OR 
-                     (start_date <= ? AND end_date >= ?) OR 
-                     (start_date >= ? AND end_date <= ?)"
-                )
-                .bind::<diesel::sql_types::Text, _>(&start_str)
-                .bind::<diesel::sql_types::Text, _>(&end_str)
-                .bind::<diesel::sql_types::Text, _>(&start_str)
-                .bind::<diesel::sql_types::Text, _>(&end_str)
-                .bind::<diesel::sql_types::Text, _>(&start_str)
-                .bind::<diesel::sql_types::Text, _>(&end_str)
-                .bind::<diesel::sql_types::Text, _>(&start_str)
-                .bind::<diesel::sql_types::Text, _>(&end_str)
+                start_date.ge(start_str.clone())
+                    .and(start_date.le(end_str.clone()))
+                    .or(end_date.ge(start_str.clone())
+                        .and(end_date.le(end_str.clone())))
+                    .or(start_date.le(start_str.clone())
+                        .and(end_date.ge(end_str.clone())))
+                    .or(start_date.ge(start_str)
+                        .and(end_date.le(end_str)))
             );
         }
         
@@ -382,9 +378,8 @@ impl Database {
         if let Some(ref search) = filter.search_query {
             let search_pattern = format!("%{}%", search);
             query = query.filter(
-                sql::<diesel::sql_types::Bool>("title LIKE ? OR description LIKE ?")
-                    .bind::<diesel::sql_types::Text, _>(&search_pattern)
-                    .bind::<diesel::sql_types::Text, _>(&search_pattern)
+                title.like(search_pattern.clone())
+                    .or(description.like(search_pattern))
             );
         }
         
@@ -404,9 +399,6 @@ impl Database {
     }
 }
 
-// 数据库迁移
-embed_migrations!();
-
 // 辅助函数
 impl Database {
     /// 将DateTime转换为字符串
@@ -414,11 +406,7 @@ impl Database {
         dt.to_rfc3339()
     }
     
-    /// 将字符串转换为DateTime
-    pub fn string_to_datetime(s: &str) -> Result<DateTime<Utc>, chrono::ParseError> {
-        DateTime::parse_from_rfc3339(s)
-            .map(|dt| dt.with_timezone(&Utc))
-    }
+
     
     /// 创建新事件数据
     pub fn create_new_event_data(

@@ -8,7 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useDisclosure } from "@/hooks/use-disclosure";
 
 import { useEvents } from "../../hooks/use-events";
-import { useCalendar } from "../../contexts/calendar-context";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogHeader, DialogClose, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
@@ -28,7 +27,6 @@ export function EditEventDialog({ children, event }: IProps) {
 
   const formId = useId();
   const { updateEvent } = useEvents();
-  const { refreshEvents } = useCalendar();
 
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
@@ -44,7 +42,6 @@ export function EditEventDialog({ children, event }: IProps) {
   const onSubmit = async (values: TEventFormData) => {
     try {
       await updateEvent(event.id, values);
-      await refreshEvents();
       onClose();
     } catch (error) {
       console.error("更新事件失败:", error);
