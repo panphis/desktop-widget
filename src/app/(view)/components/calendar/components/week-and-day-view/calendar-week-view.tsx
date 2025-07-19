@@ -1,4 +1,4 @@
-import { startOfWeek, addDays, parseISO, isSameDay, areIntervalsOverlapping } from "date-fns";
+import { startOfWeek,endOfWeek, addDays, parseISO, isSameDay, areIntervalsOverlapping } from "date-fns";
 
 import { useCalendar } from "../../contexts/calendar-context";
 
@@ -13,16 +13,37 @@ import { WeekViewMultiDayEventsRow } from "./week-view-multi-day-events-row";
 import { cn } from "@/lib/utils";
 import { groupEvents, getEventBlockStyle, getVisibleHours } from "../../helpers";
 
-import type { IEvent } from "../../interfaces";
 import { formatTime } from "@/lib/format";
+import { useEvents } from "@/hooks/use-event";
 
-interface IProps {
-  singleDayEvents: IEvent[];
-  multiDayEvents: IEvent[];
-}
 
-export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
+
+export function CalendarWeekView() {
   const { selectedDate, visibleHours } = useCalendar();
+
+  
+  
+  const startTime = startOfWeek(selectedDate);
+  const endTime = endOfWeek(selectedDate);
+  
+  const { data:  filteredEvents = [] } = useEvents(
+    startTime.toISOString(), 
+    endTime.toISOString()
+  );
+  
+
+  const singleDayEvents = filteredEvents.filter(event => {
+    const startDate = parseISO(event.start_date);
+    const endDate = parseISO(event.end_date);
+    return isSameDay(startDate, endDate);
+  });
+
+  const multiDayEvents = filteredEvents.filter(event => {
+    const startDate = parseISO(event.start_date);
+    const endDate = parseISO(event.end_date);
+    return !isSameDay(startDate, endDate);
+  });
+
 
   const { hours, earliestEventHour, latestEventHour } = getVisibleHours(visibleHours, singleDayEvents);
 
@@ -65,7 +86,7 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
             <div className="relative flex-1 border-l">
               <div className="grid grid-cols-7 divide-x">
                 {weekDays.map((day, dayIndex) => {
-                  const dayEvents = singleDayEvents.filter(event => isSameDay(parseISO(event.startDate), day) || isSameDay(parseISO(event.endDate), day));
+                  const dayEvents = singleDayEvents.filter(event => isSameDay(parseISO(event.start_date), day) || isSameDay(parseISO(event.end_date), day));
                   const groupedEvents = groupEvents(dayEvents);
 
                   return (
@@ -76,13 +97,13 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
                             {index !== 0 && <div className="pointer-events-none absolute inset-x-0 top-0 border-b"></div>}
 
                             <DroppableTimeBlock date={day} hour={hour} minute={0}>
-                              <AddEventDialog startDate={day} startTime={{ hour, minute: 0 }}>
+                              <AddEventDialog start_date={day} startTime={{ hour, minute: 0 }}>
                                 <div className="absolute inset-x-0 top-0 h-[24px] cursor-pointer transition-colors hover:bg-accent" />
                               </AddEventDialog>
                             </DroppableTimeBlock>
 
                             <DroppableTimeBlock date={day} hour={hour} minute={15}>
-                              <AddEventDialog startDate={day} startTime={{ hour, minute: 15 }}>
+                              <AddEventDialog start_date={day} startTime={{ hour, minute: 15 }}>
                                 <div className="absolute inset-x-0 top-[24px] h-[24px] cursor-pointer transition-colors hover:bg-accent" />
                               </AddEventDialog>
                             </DroppableTimeBlock>
@@ -90,13 +111,13 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
                             <div className="pointer-events-none absolute inset-x-0 top-1/2 border-b border-dashed"></div>
 
                             <DroppableTimeBlock date={day} hour={hour} minute={30}>
-                              <AddEventDialog startDate={day} startTime={{ hour, minute: 30 }}>
+                              <AddEventDialog start_date={day} startTime={{ hour, minute: 30 }}>
                                 <div className="absolute inset-x-0 top-[48px] h-[24px] cursor-pointer transition-colors hover:bg-accent" />
                               </AddEventDialog>
                             </DroppableTimeBlock>
 
                             <DroppableTimeBlock date={day} hour={hour} minute={45}>
-                              <AddEventDialog startDate={day} startTime={{ hour, minute: 45 }}>
+                              <AddEventDialog start_date={day} startTime={{ hour, minute: 45 }}>
                                 <div className="absolute inset-x-0 top-[72px] h-[24px] cursor-pointer transition-colors hover:bg-accent" />
                               </AddEventDialog>
                             </DroppableTimeBlock>
@@ -112,8 +133,8 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
                               otherIndex !== groupIndex &&
                               otherGroup.some(otherEvent =>
                                 areIntervalsOverlapping(
-                                  { start: parseISO(event.startDate), end: parseISO(event.endDate) },
-                                  { start: parseISO(otherEvent.startDate), end: parseISO(otherEvent.endDate) }
+                                  { start: parseISO(event.start_date), end: parseISO(event.end_date) },
+                                  { start: parseISO(otherEvent.start_date), end: parseISO(otherEvent.end_date) }
                                 )
                               )
                           );

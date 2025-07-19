@@ -6,7 +6,7 @@ import { getEmptyImage } from "react-dnd-html5-backend";
 
 import { cn } from "@/lib/utils";
 
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
 
 export const ItemTypes = {
   EVENT: "event",

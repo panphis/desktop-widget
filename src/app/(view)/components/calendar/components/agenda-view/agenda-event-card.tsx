@@ -1,6 +1,5 @@
 "use client";
 
-import dayjs from "dayjs";
 import { cva } from "class-variance-authority";
 import { Clock, Text } from "lucide-react";
 
@@ -8,7 +7,7 @@ import { useCalendar } from "../../contexts/calendar-context";
 
 import { EventDetailsDialog } from "../../components/dialogs/event-details-dialog";
 
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
 import type { VariantProps } from "class-variance-authority";
 import { formatTime } from "@/lib/format";
 
@@ -87,7 +86,7 @@ export function AgendaEventCard({ event, eventCurrentDay, eventTotalDays }: IPro
           <div className="flex items-center gap-1">
             <Clock className="size-3 shrink-0" />
             <p className="text-xs text-foreground">
-              {formatTime(event.startDate, "HH:mm")} - {formatTime(event.endDate, "HH:mm")}
+              {formatTime(event.start_date, "HH:mm")} - {formatTime(event.end_date, "HH:mm")}
             </p>
           </div>
 

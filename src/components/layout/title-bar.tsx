@@ -10,7 +10,7 @@ export function TitleBar() {
           WebkitAppRegion: "drag",
         } as React.CSSProperties
       }
-      className="px-2 py-0.5 flex items-center select-none shadow-md backdrop-blur-md justify-between"
+      className="px-2 py-0.5 sticky top-0 flex items-center select-none shadow-md backdrop-blur-md justify-between"
     >
       <div className="flex items-center gap-2 h-7">
         <p>My Custom Title Bar</p>

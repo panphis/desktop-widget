@@ -18,6 +18,7 @@ export type FieldType =
 export interface Option {
 	label: string;
 	value: string;
+	icon?: React.ReactNode;
 }
 
 // 根据字段类型推断值类型

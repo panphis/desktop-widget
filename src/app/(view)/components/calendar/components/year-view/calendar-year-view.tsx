@@ -1,18 +1,29 @@
 import { useMemo } from "react";
-import { addMonths, startOfYear } from "date-fns";
+import { addMonths, endOfYear, startOfYear } from "date-fns";
 
 import { useCalendar } from "../../contexts/calendar-context";
 
 import { YearViewMonth } from "./year-view-month";
+ 
+import { useEvents } from "@/hooks/use-event";
 
-import type { IEvent } from "../../interfaces";
+ 
 
-interface IProps {
-  allEvents: IEvent[];
-}
-
-export function CalendarYearView({ allEvents }: IProps) {
+export function CalendarYearView() {
   const { selectedDate } = useCalendar();
+
+
+  const startTime = startOfYear(selectedDate);
+  const endTime = endOfYear(selectedDate);
+  
+  const { data:  filteredEvents = [] } = useEvents(
+    startTime.toISOString(), 
+    endTime.toISOString()
+  );
+  
+  const eventStartDates = useMemo(() => {
+    return filteredEvents.map(event => ({ ...event, endDate: event.start_date }));
+  }, [filteredEvents]); 
 
   const months = useMemo(() => {
     const yearStart = startOfYear(selectedDate);
@@ -23,7 +34,7 @@ export function CalendarYearView({ allEvents }: IProps) {
     <div className="p-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {months.map(month => (
-          <YearViewMonth key={month.toString()} month={month} events={allEvents} />
+          <YearViewMonth key={month.toString()} month={month} events={eventStartDates} />
         ))}
       </div>
     </div>

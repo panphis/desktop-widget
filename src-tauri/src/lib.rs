@@ -6,6 +6,7 @@ use tauri_plugin_autostart::MacosLauncher;
 use commands::greet::greet;
 use commands::settings::{is_auto_start_enabled,set_enable_auto_start};
 use commands::setup::{set_complete,setup};
+
 use commands::events_diesel::{
     create_event, 
     get_all_events, 
@@ -23,16 +24,71 @@ use commands::events_diesel::{
     cleanup_deleted_events,
     get_events_with_filter
 };
+
 use tauri::async_runtime::spawn;
 use std::sync::Mutex;
 use tauri_plugin_window_state::{Builder, StateFlags};
 use std::time::Instant;
+use crate::commands::shortcut_commands::ShortcutItem;
+use crate::commands::shortcut_commands::{
+    shortcut_get_all,
+    shortcut_create,
+    shortcut_update,
+    shortcut_delete,
+    shortcut_open_path,
+    shortcut_select_file,
+    shortcut_select_folder,
+    shortcut_get_file_icon
+};
+
+pub struct ShortcutStore {
+    pub shortcuts: Mutex<Vec<ShortcutItem>>,
+}
+
+impl Default for ShortcutStore {
+    fn default() -> Self {
+        Self {
+            shortcuts: Mutex::new(Vec::new()),
+        }
+    }
+}
+
+
+use diesel::prelude::*;
+use diesel::sqlite::SqliteConnection;
+
+pub fn establish_connection() -> SqliteConnection {
+    let database_url = "sqlite:shortcuts.db";
+    SqliteConnection::establish(database_url)
+        .expect(&format!("Error connecting to {}", database_url))
+}
+
+// 初始化数据库
+pub fn init_database() -> Result<(), Box<dyn std::error::Error>> {
+    let mut conn = establish_connection();
+    
+    // 创建表（如果不存在）
+    diesel::sql_query(
+        "CREATE TABLE IF NOT EXISTS shortcuts (
+            id TEXT PRIMARY KEY NOT NULL,
+            name TEXT NOT NULL,
+            path TEXT NOT NULL,
+            type TEXT NOT NULL,
+            icon TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )"
+    ).execute(&mut conn)?;
+    
+    Ok(())
+}
 
 pub fn run() {
   let start_time = Instant::now();
 
   let app_handle = tauri::Builder::default()
       .plugin(Builder::default().with_state_flags(StateFlags::default()).build())
+      .plugin(tauri_plugin_dialog::init())
       .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![])))
       .manage(Mutex::new(commands::setup::SetupState::new()))
       .setup(move |app| {
@@ -73,7 +129,15 @@ pub fn run() {
         get_upcoming_events,
         get_event_stats,
         cleanup_deleted_events,
-        get_events_with_filter
+        get_events_with_filter,
+        shortcut_get_all,
+        shortcut_create,
+        shortcut_update,
+        shortcut_delete,
+        shortcut_open_path,
+        shortcut_select_file,
+        shortcut_select_folder,
+        shortcut_get_file_icon
       ]);
 
     if let Err(e) = app_handle.run(tauri::generate_context!()) {
@@ -81,3 +145,4 @@ pub fn run() {
         std::process::exit(1);
     }
 }
+

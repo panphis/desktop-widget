@@ -11,32 +11,37 @@ import { Dialog, DialogHeader, DialogClose, DialogContent, DialogTrigger, Dialog
 import { eventSchema } from "../../schemas";
 import type { TEventFormData } from "../../schemas";
 import { EventForm } from "./event-form";
-import { useEvents } from "../../hooks/use-events";
+
+import { useCreateEvent } from "@/hooks/use-event";
 
 interface IProps {
   children: React.ReactNode;
-  startDate?: Date;
+  start_date?: Date;
   startTime?: { hour: number; minute: number };
 }
 
-export function AddEventDialog({ children, startDate }: IProps) {
+export function AddEventDialog({ children, start_date }: IProps) {
 
   const { isOpen, onClose, onToggle } = useDisclosure();
   const formId = useId();
-  const { createEvent } = useEvents();
-  
+  const { mutateAsync: createEvent } = useCreateEvent();
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       title: "",
       description: "",
-      startDate: typeof startDate !== "undefined" ? startDate : undefined,
+      start_date: typeof start_date !== "undefined" ? start_date : undefined,
     },
   });
 
   const onSubmit = async (values: TEventFormData) => {
     try {
-      await createEvent(values);
+      const payload = {
+        ...values, 
+        start_date: values.start_date.toISOString(),
+        end_date: values.end_date.toISOString(),
+      };
+      await createEvent({ ...payload });
       onClose();
       form.reset();
     } catch (error) {
@@ -46,9 +51,9 @@ export function AddEventDialog({ children, startDate }: IProps) {
 
   useEffect(() => {
     form.reset({
-      startDate,
+      start_date,
     });
-  }, [startDate, form.reset]);
+  }, [start_date, form.reset]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onToggle}>

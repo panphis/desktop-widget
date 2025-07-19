@@ -8,9 +8,10 @@ import { EventDetailsDialog } from "../dialogs/event-details-dialog";
 
 import { cn } from "@/lib/utils";
 
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
 import type { VariantProps } from "class-variance-authority";
 import { formatTime } from "@/lib/format";
+import DeleteEventButton from "../week-and-day-view/delete-event-button";
 
 const eventBadgeVariants = cva(
   "mx-1 flex size-auto h-6.5 select-none items-center justify-between gap-1.5 truncate whitespace-nowrap rounded-md border px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
@@ -60,8 +61,8 @@ interface IProps extends Omit<VariantProps<typeof eventBadgeVariants>, "color" |
 export function MonthEventBadge({ event, cellDate, eventCurrentDay, eventTotalDays, className, position: propPosition }: IProps) {
   const { badgeVariant } = useCalendar();
 
-  const itemStart = startOfDay(parseISO(event.startDate));
-  const itemEnd = endOfDay(parseISO(event.endDate));
+  const itemStart = startOfDay(parseISO(event.start_date));
+  const itemEnd = endOfDay(parseISO(event.end_date));
 
   if (cellDate < itemStart || cellDate > itemEnd) return null;
 
@@ -98,7 +99,7 @@ export function MonthEventBadge({ event, cellDate, eventCurrentDay, eventTotalDa
     <DraggableEvent event={event}>
       <EventDetailsDialog event={event}>
         <div role="button" tabIndex={0} className={eventBadgeClasses} onKeyDown={handleKeyDown}>
-          <div className="flex items-center gap-1.5 truncate">
+          <div className="flex items-center gap-1.5 truncate gap-2">
             {!["middle", "last"].includes(position) && ["mixed", "dot"].includes(badgeVariant) && (
               <svg width="8" height="8" viewBox="0 0 8 8" className="event-dot shrink-0">
                 <circle cx="4" cy="4" r="4" />
@@ -116,8 +117,8 @@ export function MonthEventBadge({ event, cellDate, eventCurrentDay, eventTotalDa
               </p>
             )}
           </div>
-
-          {renderBadgeText && <span>{formatTime(new Date(event.startDate), "h:mm a")}</span>}
+          {renderBadgeText && <span>{formatTime(new Date(event.start_date), "h:mm a")}</span>}
+          <DeleteEventButton className="ml-auto" event={event} />
         </div>
       </EventDetailsDialog>
     </DraggableEvent>

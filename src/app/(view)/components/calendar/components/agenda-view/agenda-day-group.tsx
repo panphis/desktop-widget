@@ -1,8 +1,8 @@
-import { differenceInDays, format, parseISO, startOfDay } from "date-fns";
+import { differenceInDays,  parseISO, startOfDay } from "date-fns";
 
 import { AgendaEventCard } from "../agenda-view/agenda-event-card";
 
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
 
 import { formatTime } from "@/lib/format";
 
@@ -13,19 +13,19 @@ interface IProps {
 }
 
 export function AgendaDayGroup({ date, events, multiDayEvents }: IProps) {
-  const sortedEvents = [...events].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+  const sortedEvents = [...events].sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
 
   return (
     <div className="space-y-4">
-      <div className="sticky top-0 flex items-center gap-4 bg-background py-2">
-        <p className="text-sm font-semibold">{formatTime(date, "YYYY MMMM d, dddd")}</p>
+      <div className="sticky top-0 flex items-center gap-4 bg-background p-2">
+        <p className="text-sm font-semibold">{formatTime(date, "YYYY MMMM D, dddd")}</p>
       </div>
 
       <div className="space-y-2">
         {multiDayEvents.length > 0 &&
           multiDayEvents.map(event => {
-            const eventStart = startOfDay(parseISO(event.startDate));
-            const eventEnd = startOfDay(parseISO(event.endDate));
+            const eventStart = startOfDay(parseISO(event.start_date));
+            const eventEnd = startOfDay(parseISO(event.end_date));
             const currentDate = startOfDay(date);
 
             const eventTotalDays = differenceInDays(eventEnd, eventStart) + 1;

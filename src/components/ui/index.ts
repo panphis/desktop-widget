@@ -73,6 +73,7 @@ export {
 } from "./context-menu";
 export {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,

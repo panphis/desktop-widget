@@ -25,14 +25,13 @@ import {
   isWithinInterval,
 } from "date-fns";
 
-import type { ICalendarCell, IEvent } from "./interfaces";
-import type { TCalendarView, TVisibleHours } from "./types";
+import type { ICalendarCell, IEvent, TCalendarView, TVisibleHours } from "@/types";
 import { formatTime } from "@/lib/format";
 
 // ================ Header helper functions ================ //
 
 export function rangeText(view: TCalendarView, date: Date) {
-  const formatString = "YYYY年 MMM d日";
+  const formatString = "YYYY年 MMM D日";
   let start: Date;
   let end: Date;
 
@@ -83,27 +82,27 @@ export function getEventsCount(events: IEvent[], date: Date, view: TCalendarView
     month: isSameMonth,
   };
 
-  return events.filter(event => compareFns[view](new Date(event.startDate), date)).length;
+  return events.filter(event => compareFns[view](new Date(event.start_date), date)).length;
 }
 
 // ================ Week and day view helper functions ================ //
 
 export function getCurrentEvents(events: IEvent[]) {
   const now = new Date();
-  return events.filter(event => isWithinInterval(now, { start: parseISO(event.startDate), end: parseISO(event.endDate) })) || null;
+  return events.filter(event => isWithinInterval(now, { start: parseISO(event.start_date), end: parseISO(event.end_date) })) || null;
 }
 
 export function groupEvents(dayEvents: IEvent[]) {
-  const sortedEvents = dayEvents.sort((a, b) => parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime());
+  const sortedEvents = dayEvents.sort((a, b) => parseISO(a.start_date).getTime() - parseISO(b.start_date).getTime());
   const groups: IEvent[][] = [];
 
   for (const event of sortedEvents) {
-    const eventStart = parseISO(event.startDate);
+    const eventStart = parseISO(event.start_date);
 
     let placed = false;
     for (const group of groups) {
       const lastEventInGroup = group[group.length - 1];
-      const lastEventEnd = parseISO(lastEventInGroup.endDate);
+      const lastEventEnd = parseISO(lastEventInGroup.end_date);
 
       if (eventStart >= lastEventEnd) {
         group.push(event);
@@ -119,9 +118,9 @@ export function groupEvents(dayEvents: IEvent[]) {
 }
 
 export function getEventBlockStyle(event: IEvent, day: Date, groupIndex: number, groupSize: number, visibleHoursRange?: { from: number; to: number }) {
-  const startDate = parseISO(event.startDate);
+  const start_date = parseISO(event.start_date);
   const dayStart = new Date(day.setHours(0, 0, 0, 0));
-  const eventStart = startDate < dayStart ? dayStart : startDate;
+  const eventStart = start_date < dayStart ? dayStart : start_date;
   const startMinutes = differenceInMinutes(eventStart, dayStart);
 
   let top;
@@ -147,8 +146,8 @@ export function getVisibleHours(visibleHours: TVisibleHours, singleDayEvents: IE
   let latestEventHour = visibleHours.to;
 
   singleDayEvents.forEach(event => {
-    const startHour = parseISO(event.startDate).getHours();
-    const endTime = parseISO(event.endDate);
+    const startHour = parseISO(event.start_date).getHours();
+    const endTime = parseISO(event.end_date);
     const endHour = endTime.getHours() + (endTime.getMinutes() > 0 ? 1 : 0);
     if (startHour < earliestEventHour) earliestEventHour = startHour;
     if (endHour > latestEventHour) latestEventHour = endHour;
@@ -213,16 +212,16 @@ export function calculateMonthEventPositions(multiDayEvents: IEvent[], singleDay
 
   const sortedEvents = [
     ...multiDayEvents.sort((a, b) => {
-      const aDuration = differenceInDays(parseISO(a.endDate), parseISO(a.startDate));
-      const bDuration = differenceInDays(parseISO(b.endDate), parseISO(b.startDate));
-      return bDuration - aDuration || parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime();
+      const aDuration = differenceInDays(parseISO(a.end_date), parseISO(a.start_date));
+      const bDuration = differenceInDays(parseISO(b.end_date), parseISO(b.start_date));
+      return bDuration - aDuration || parseISO(a.start_date).getTime() - parseISO(b.start_date).getTime();
     }),
-    ...singleDayEvents.sort((a, b) => parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime()),
+    ...singleDayEvents.sort((a, b) => parseISO(a.start_date).getTime() - parseISO(b.start_date).getTime()),
   ];
 
   sortedEvents.forEach(event => {
-    const eventStart = parseISO(event.startDate);
-    const eventEnd = parseISO(event.endDate);
+    const eventStart = parseISO(event.start_date);
+    const eventEnd = parseISO(event.end_date);
     const eventDays = eachDayOfInterval({
       start: eventStart < monthStart ? monthStart : eventStart,
       end: eventEnd > monthEnd ? monthEnd : eventEnd,
@@ -256,8 +255,8 @@ export function calculateMonthEventPositions(multiDayEvents: IEvent[], singleDay
 
 export function getMonthCellEvents(date: Date, events: IEvent[], eventPositions: Record<string, number>) {
   const eventsForDate = events.filter(event => {
-    const eventStart = parseISO(event.startDate);
-    const eventEnd = parseISO(event.endDate);
+    const eventStart = parseISO(event.start_date);
+    const eventEnd = parseISO(event.end_date);
     return (date >= eventStart && date <= eventEnd) || isSameDay(date, eventStart) || isSameDay(date, eventEnd);
   });
 
@@ -265,11 +264,75 @@ export function getMonthCellEvents(date: Date, events: IEvent[], eventPositions:
     .map(event => ({
       ...event,
       position: eventPositions[event.id] ?? -1,
-      isMultiDay: event.startDate !== event.endDate,
+      isMultiDay: event.start_date !== event.end_date,
     }))
     .sort((a, b) => {
       if (a.isMultiDay && !b.isMultiDay) return -1;
       if (!a.isMultiDay && b.isMultiDay) return 1;
       return a.position - b.position;
     });
+}
+
+// ================ 月份日期范围辅助函数 ================ //
+
+/**
+ * 根据指定日期获取这个月的月初和月末
+ * @param date 指定日期
+ * @returns 包含月初和月末的对象
+ */
+export function getMonthRange(date: Date): { startOfMonth: Date; endOfMonth: Date } {
+  return {
+    startOfMonth: startOfMonth(date),
+    endOfMonth: endOfMonth(date),
+  };
+}
+
+/**
+ * 根据指定日期获取这个月的月初和月末（ISO字符串格式）
+ * @param date 指定日期
+ * @returns 包含月初和月末ISO字符串的对象
+ */
+export function getMonthRangeISO(date: Date): { startOfMonth: string; endOfMonth: string } {
+  const range = getMonthRange(date);
+  return {
+    startOfMonth: range.startOfMonth.toISOString(),
+    endOfMonth: range.endOfMonth.toISOString(),
+  };
+}
+
+/**
+ * 根据指定日期获取这个月的月初和月末（带时间）
+ * @param date 指定日期
+ * @param startTime 月初的时间，默认为 00:00:00
+ * @param endTime 月末的时间，默认为 23:59:59.999
+ * @returns 包含月初和月末的对象
+ */
+export function getMonthRangeWithTime(
+  date: Date, 
+  startTime: { hour: number; minute: number; second: number; millisecond: number } = { hour: 0, minute: 0, second: 0, millisecond: 0 },
+  endTime: { hour: number; minute: number; second: number; millisecond: number } = { hour: 23, minute: 59, second: 59, millisecond: 999 }
+): { startOfMonth: Date; endOfMonth: Date } {
+  const monthStart = startOfMonth(date);
+  const monthEnd = endOfMonth(date);
+  
+  return {
+    startOfMonth: new Date(
+      monthStart.getFullYear(),
+      monthStart.getMonth(),
+      monthStart.getDate(),
+      startTime.hour,
+      startTime.minute,
+      startTime.second,
+      startTime.millisecond
+    ),
+    endOfMonth: new Date(
+      monthEnd.getFullYear(),
+      monthEnd.getMonth(),
+      monthEnd.getDate(),
+      endTime.hour,
+      endTime.minute,
+      endTime.second,
+      endTime.millisecond
+    ),
+  };
 }

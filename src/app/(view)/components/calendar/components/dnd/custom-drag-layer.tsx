@@ -2,7 +2,7 @@
 
 import { useDragLayer } from "react-dnd";
 
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
 
 interface IDragItem {
   event: IEvent;

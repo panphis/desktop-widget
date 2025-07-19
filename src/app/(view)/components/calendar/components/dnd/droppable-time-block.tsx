@@ -6,8 +6,9 @@ import { parseISO, differenceInMilliseconds } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ItemTypes } from "./draggable-event";
 
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
 
+import { useUpdateEvent } from "@/hooks/use-event";
 interface DroppableTimeBlockProps {
   date: Date;
   hour: number;
@@ -16,14 +17,16 @@ interface DroppableTimeBlockProps {
 }
 
 export function DroppableTimeBlock({ date, hour, minute, children }: DroppableTimeBlockProps) {
+  
+  const { mutateAsync: updateEvent } = useUpdateEvent();
   const [{ isOver, canDrop }, drop] = useDrop(
     () => ({
       accept: ItemTypes.EVENT,
-      drop: (item: { event: IEvent }) => {
+      drop: async (item: { event: IEvent }) => {
         const droppedEvent = item.event;
 
-        const eventStartDate = parseISO(droppedEvent.startDate);
-        const eventEndDate = parseISO(droppedEvent.endDate);
+        const eventStartDate = parseISO(droppedEvent.start_date);
+        const eventEndDate = parseISO(droppedEvent.end_date);
 
         const eventDurationMs = differenceInMilliseconds(eventEndDate, eventStartDate);
 
@@ -32,6 +35,12 @@ export function DroppableTimeBlock({ date, hour, minute, children }: DroppableTi
         const newEndDate = new Date(newStartDate.getTime() + eventDurationMs);
 
         // TODO: 更新事件
+        const payload = {
+          ...droppedEvent,
+          start_date: newStartDate.toISOString(),
+          end_date: newEndDate.toISOString(),
+        };
+        await updateEvent({ ...payload });
 
         return { moved: true };
       },

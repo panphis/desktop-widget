@@ -8,7 +8,7 @@ import { MonthEventBadge } from "./month-event-badge";
 import { cn } from "@/lib/utils";
 import { getMonthCellEvents } from "../../helpers";
 
-import type { ICalendarCell, IEvent } from "../../interfaces";
+import type { ICalendarCell, IEvent } from "@/types";
 
 interface IProps {
   cell: ICalendarCell;

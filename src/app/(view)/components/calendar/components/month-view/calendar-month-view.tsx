@@ -6,17 +6,39 @@ import { DayCell } from "./day-cell";
 
 import { getCalendarCells, calculateMonthEventPositions } from "../../helpers";
 
-import type { IEvent } from "../../interfaces";
+import { useEvents } from "@/hooks/use-event";
+import { isSameDay, parseISO, startOfMonth, endOfMonth } from "date-fns";
 
-interface IProps {
-  singleDayEvents: IEvent[];
-  multiDayEvents: IEvent[];
-}
+
 
 const WEEK_DAYS = ["一", "二", "三", "四", "五", "六", "日" ];
 
-export function CalendarMonthView({ singleDayEvents, multiDayEvents }: IProps) {
+export function CalendarMonthView() {
   const { selectedDate } = useCalendar();
+
+
+  const startTime = startOfMonth(selectedDate);
+  const endTime = endOfMonth(selectedDate);
+  
+  const { data:  filteredEvents = [] } = useEvents(
+    startTime.toISOString(), 
+    endTime.toISOString()
+  );
+  
+
+  const singleDayEvents = filteredEvents.filter(event => {
+    const startDate = parseISO(event.start_date);
+    const endDate = parseISO(event.end_date);
+    return isSameDay(startDate, endDate);
+  });
+
+  const multiDayEvents = filteredEvents.filter(event => {
+    const startDate = parseISO(event.start_date);
+    const endDate = parseISO(event.end_date);
+    return !isSameDay(startDate, endDate);
+  });
+
+
 
   const allEvents = [...multiDayEvents, ...singleDayEvents];
 

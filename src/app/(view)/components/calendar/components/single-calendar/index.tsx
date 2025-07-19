@@ -50,10 +50,10 @@ function SingleCalendar({ className, classNames, showOutsideDays = true, selecte
       }}
       components={{
         // @ts-expect-error: IconLeft/Right 并非 react-day-picker 官方类型，但实际可用
-        IconLeft: ({ className, ...props }: { className?: string; [key: string]: any }) => (
+        IconLeft: ({ className, ...props }: { className?: string; [key: string]: unknown }) => (
           <ChevronLeft className={cn("h-4 w-4", className)} {...props} />
         ),
-        IconRight: ({ className, ...props }: { className?: string; [key: string]: any }) => (
+        IconRight: ({ className, ...props }: { className?: string; [key: string]: unknown }) => (
           <ChevronRight className={cn("h-4 w-4", className)} {...props} />
         ),
       }}

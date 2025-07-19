@@ -6,16 +6,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useDisclosure } from "@/hooks/use-disclosure";
-
-import { useEvents } from "../../hooks/use-events";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogHeader, DialogClose, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogHeader, DialogClose, DialogContent, DialogTrigger, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 import { eventSchema } from "../../schemas";
 
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
 import type { TEventFormData } from "../../schemas";
 import { EventForm } from "./event-form";
+import { useUpdateEvent } from "@/hooks/use-event";
 
 interface IProps {
   children: React.ReactNode;
@@ -25,24 +24,31 @@ interface IProps {
 export function EditEventDialog({ children, event }: IProps) {
   const { isOpen, onClose, onToggle } = useDisclosure();
 
+  const { mutateAsync: updateEvent } = useUpdateEvent();
   const formId = useId();
-  const { updateEvent } = useEvents();
 
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       title: event.title,
       description: event.description,
-      startDate: parseISO(event.startDate),
-      endDate: parseISO(event.endDate),
+      start_date: parseISO(event.start_date),
+      end_date: parseISO(event.end_date),
       color: event.color,
     },
   });
 
   const onSubmit = async (values: TEventFormData) => {
     try {
-      await updateEvent(event.id, values);
+      const payload = {
+        ...values, 
+        start_date: values.start_date.toISOString(),
+        end_date: values.end_date.toISOString(),
+        id: event.id,
+      };
+      await updateEvent({ ...payload });
       onClose();
+      form.reset();
     } catch (error) {
       console.error("更新事件失败:", error);
     }

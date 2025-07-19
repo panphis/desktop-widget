@@ -5,15 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 
 import { DatePicker } from "@/components";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";  
-import { Form, FormField, FormLabel, FormItem, FormControl, FormMessage } from "@/components/ui/form";
-import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
-
+import { Input , Textarea , Form, FormField, FormLabel, FormItem, FormControl, FormMessage, Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from "@/components/ui";
 import { eventSchema } from "../../schemas";
-
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
 import type { TEventFormData } from "../../schemas";
+
 
 interface IProps {
   event?: IEvent;
@@ -22,14 +18,14 @@ interface IProps {
   formId?: string;
 }
 
-export function EventForm({ event, onSubmit, onCancel, formId = "event-form" }: IProps) {
+export function EventForm({ event, onSubmit, formId = "event-form" }: IProps) {
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      title: event?.title,
-      description: event?.description,
-      startDate: event?.startDate ? new Date(event.startDate) :undefined,
-      endDate: event?.endDate ? new Date(event.endDate) : undefined,
+      title: event?.title ?? '',
+      description: event?.description ?? '',
+      start_date: event?.start_date ? new Date(event.start_date) :undefined,
+      end_date: event?.end_date ? new Date(event.end_date) : undefined,
       color: event?.color,
     },
   });
@@ -42,16 +38,15 @@ export function EventForm({ event, onSubmit, onCancel, formId = "event-form" }: 
 
         <Form {...form}>
           <form id={formId} onSubmit={form.handleSubmit(handleSubmit)} className="grid gap-4 py-4">
-
             <FormField
               control={form.control}
               name="title"
-              render={({ field, fieldState }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="title">标题</FormLabel>
 
                   <FormControl>
-                    <Input id="title" placeholder="输入标题" data-invalid={fieldState.invalid} {...field} />
+                    <Input id="title" placeholder="输入标题" {...field} />
                   </FormControl>
 
                   <FormMessage />
@@ -62,14 +57,13 @@ export function EventForm({ event, onSubmit, onCancel, formId = "event-form" }: 
             <div className="flex items-start gap-2">
               <FormField
                 control={form.control}
-                name="startDate"
+                name="start_date"
                 render={({ field, fieldState }) => (
                   <FormItem className="flex-1">
-                    <FormLabel htmlFor="startDate">开始日期</FormLabel>
-
+                    <FormLabel htmlFor="start_date">开始日期</FormLabel>
                     <FormControl>
                       <DatePicker
-                        id="startDate"
+                        id="start_date"
                         value={field.value}
                         onChange={date => field.onChange(date as Date)}
                         placeholder="选择开始时间"
@@ -87,7 +81,7 @@ export function EventForm({ event, onSubmit, onCancel, formId = "event-form" }: 
             <div className="flex items-start gap-2">
               <FormField
                 control={form.control}
-                name="endDate"
+                name="end_date"
                 render={({ field, fieldState }) => (
                   <FormItem className="flex-1">
                     <FormLabel>结束日期</FormLabel>

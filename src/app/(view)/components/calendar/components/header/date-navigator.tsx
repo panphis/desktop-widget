@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { formatDate } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { useCalendar } from "../../contexts/calendar-context";
@@ -8,18 +7,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { getEventsCount, navigateDate, rangeText } from "../../helpers";
-
-import type { IEvent } from "../../interfaces";
-import type { TCalendarView } from "../../types";
+;
 import { formatTime } from "@/lib/format";
+import { endOfDay, startOfDay } from "date-fns";
+import { useEvents } from "@/hooks/use-event";
 
-interface IProps {
-  view: TCalendarView;
-  events: IEvent[];
-}
 
-export function DateNavigator({ view, events }: IProps) {
-  const { selectedDate, setSelectedDate } = useCalendar();
+
+export function DateNavigator() {
+  const { selectedDate, setSelectedDate, view } = useCalendar();
+
+  const startTime = startOfDay(selectedDate);
+  const endTime = endOfDay(selectedDate);
+  
+  const { data: events = [] } = useEvents(
+    startTime.toISOString(), 
+    endTime.toISOString()
+  );
+  
 
 
   const eventCount = useMemo(() => getEventsCount(events, selectedDate, view), [events, selectedDate, view]);
@@ -34,7 +39,7 @@ export function DateNavigator({ view, events }: IProps) {
           {formatTime(selectedDate, "YYYY MMMM")}
         </span>
         <Badge variant="outline" className="px-1.5" title={`${eventCount} 件事件`}>
-          {eventCount} 件事件
+          {eventCount} 件待办
         </Badge>
       </div>
 

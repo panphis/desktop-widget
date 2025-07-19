@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { format, differenceInMinutes, parseISO } from "date-fns";
+import {  differenceInMinutes, parseISO } from "date-fns";
 
 import { useCalendar } from "../../contexts/calendar-context";
 
@@ -9,10 +9,11 @@ import { EventDetailsDialog } from "../dialogs/event-details-dialog";
 import { cn } from "@/lib/utils";
 
 import type { HTMLAttributes } from "react";
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
 import type { VariantProps } from "class-variance-authority";
 
 import { formatTime } from "@/lib/format";
+import DeleteEventButton from "./delete-event-button";
 
 const calendarWeekEventCardVariants = cva(
   "flex select-none flex-col gap-0.5 truncate whitespace-nowrap rounded-md border px-2 py-1.5 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
@@ -51,8 +52,8 @@ interface IProps extends HTMLAttributes<HTMLDivElement>, Omit<VariantProps<typeo
 export function EventBlock({ event, className }: IProps) {
   const { badgeVariant } = useCalendar();
 
-  const start = parseISO(event.startDate);
-  const end = parseISO(event.endDate);
+  const start = parseISO(event.start_date);
+  const end = parseISO(event.end_date);
   const durationInMinutes = differenceInMinutes(end, start);
   const heightInPixels = (durationInMinutes / 60) * 96 - 8;
 
@@ -79,6 +80,7 @@ export function EventBlock({ event, className }: IProps) {
             )}
 
             <p className="truncate font-semibold">{event.title}</p>
+            <DeleteEventButton event={event} />
           </div>
 
           {durationInMinutes > 25 && (
@@ -86,6 +88,8 @@ export function EventBlock({ event, className }: IProps) {
               {formatTime(start, "h:mm a")} - {formatTime(end, "h:mm a")}
             </p>
           )}
+
+          
         </div>
       </EventDetailsDialog>
     </DraggableEvent>

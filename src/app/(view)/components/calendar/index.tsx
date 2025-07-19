@@ -6,7 +6,7 @@ import { ChangeBadgeVariantInput } from "./components/change-badge-variant-input
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 import { ClientContainer } from "./components/client-container";
-import type { EventResponse } from "./hooks/use-events";
+import type { EventResponse } from "@/types";
 
 export async function Calendar() {
   const events:EventResponse[] = [];

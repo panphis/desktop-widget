@@ -3,7 +3,7 @@ import { parseISO, startOfDay, startOfWeek, endOfWeek, addDays, differenceInDays
 
 import { MonthEventBadge } from "../month-view/month-event-badge";
 
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
 
 interface IProps {
   selectedDate: Date;
@@ -18,8 +18,8 @@ export function WeekViewMultiDayEventsRow({ selectedDate, multiDayEvents }: IPro
   const processedEvents = useMemo(() => {
     return multiDayEvents
       .map(event => {
-        const start = parseISO(event.startDate);
-        const end = parseISO(event.endDate);
+        const start = parseISO(event.start_date);
+        const end = parseISO(event.end_date);
         const adjustedStart = isBefore(start, weekStart) ? weekStart : start;
         const adjustedEnd = isAfter(end, weekEnd) ? weekEnd : end;
         const startIndex = differenceInDays(adjustedStart, weekStart);
@@ -59,8 +59,8 @@ export function WeekViewMultiDayEventsRow({ selectedDate, multiDayEvents }: IPro
 
   const hasEventsInWeek = useMemo(() => {
     return multiDayEvents.some(event => {
-      const start = parseISO(event.startDate);
-      const end = parseISO(event.endDate);
+      const start = parseISO(event.start_date);
+      const end = parseISO(event.end_date);
 
       return (
         // Event starts within the week

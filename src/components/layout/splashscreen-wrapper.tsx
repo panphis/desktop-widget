@@ -17,7 +17,7 @@ type SplashscreenWrapperProps = {
 }
 
 export function SplashscreenWrapper({ children }: SplashscreenWrapperProps) {
-    const [isInitialized, setIsInitialized] = useState(false);
+    const [_isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
         const initializeApp = async () => {

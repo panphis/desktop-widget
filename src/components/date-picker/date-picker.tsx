@@ -250,14 +250,14 @@ const DatePicker = forwardRef<DatePickerRefType, DateRangePickerProps>(
 									</div>
 								</div>
 
-								<div className='flex justify-end'>
+								<div className='flex justify-end gap-2'>
 
 									{value && (
-										<Button onClick={handleClear} asChild variant="ghost" size="icon" className="m-0 p-0 w-max">
+										<Button onClick={handleClear} variant="outline">
 											清除<XIcon className="h-4 w-4" />
 										</Button>
 									)}
-									<Button className="w-full" onClick={() => setOpen(false)}>
+									<Button onClick={() => setOpen(false)}>
 										确认选择
 									</Button>
 								</div>

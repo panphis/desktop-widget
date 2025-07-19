@@ -1,13 +1,12 @@
 "use client";
 
-import { format, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
 import { Calendar, Clock, Text } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { EditEventDialog } from "./edit-event-dialog";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
 import { formatTime } from "@/lib/format";
 
 interface IProps {
@@ -16,8 +15,8 @@ interface IProps {
 }
 
 export function EventDetailsDialog({ event, children }: IProps) {
-  const startDate = parseISO(event.startDate);
-  const endDate = parseISO(event.endDate);
+  const start_date = parseISO(event.start_date);
+  const end_date = parseISO(event.end_date);
 
   return (
     <>
@@ -34,7 +33,7 @@ export function EventDetailsDialog({ event, children }: IProps) {
               <Calendar className="mt-1 size-4 shrink-0" />
               <div>
                 <p className="text-sm font-medium">开始时间</p>
-                <p className="text-sm text-muted-foreground">{formatTime(startDate, "YYYY MMM d日 h:mm a")}</p>
+                <p className="text-sm text-muted-foreground">{formatTime(start_date, "YYYY MMM D日 h:mm a")}</p>
               </div>
             </div>
 
@@ -42,7 +41,7 @@ export function EventDetailsDialog({ event, children }: IProps) {
               <Clock className="mt-1 size-4 shrink-0" />
               <div>
                 <p className="text-sm font-medium">结束时间</p>
-                <p className="text-sm text-muted-foreground">{formatTime(endDate, "YYYY MMM d日 h:mm a")}</p>
+                <p className="text-sm text-muted-foreground">{formatTime(end_date, "YYYY MMM D日 h:mm a")}</p>
               </div>
             </div>
 

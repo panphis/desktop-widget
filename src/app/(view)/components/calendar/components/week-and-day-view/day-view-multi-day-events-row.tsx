@@ -2,7 +2,7 @@ import { parseISO, isWithinInterval, differenceInDays, startOfDay, endOfDay } fr
 
 import { MonthEventBadge } from "../month-view/month-event-badge";
 
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
 
 interface IProps {
   selectedDate: Date;
@@ -15,8 +15,8 @@ export function DayViewMultiDayEventsRow({ selectedDate, multiDayEvents }: IProp
 
   const multiDayEventsInDay = multiDayEvents
     .filter(event => {
-      const eventStart = parseISO(event.startDate);
-      const eventEnd = parseISO(event.endDate);
+      const eventStart = parseISO(event.start_date);
+      const eventEnd = parseISO(event.end_date);
 
       const isOverlapping =
         isWithinInterval(dayStart, { start: eventStart, end: eventEnd }) ||
@@ -26,8 +26,8 @@ export function DayViewMultiDayEventsRow({ selectedDate, multiDayEvents }: IProp
       return isOverlapping;
     })
     .sort((a, b) => {
-      const durationA = differenceInDays(parseISO(a.endDate), parseISO(a.startDate));
-      const durationB = differenceInDays(parseISO(b.endDate), parseISO(b.startDate));
+      const durationA = differenceInDays(parseISO(a.end_date), parseISO(a.start_date));
+      const durationB = differenceInDays(parseISO(b.end_date), parseISO(b.start_date));
       return durationB - durationA;
     });
 
@@ -38,8 +38,8 @@ export function DayViewMultiDayEventsRow({ selectedDate, multiDayEvents }: IProp
       <div className="w-18"></div>
       <div className="flex flex-1 flex-col gap-1 border-l py-1">
         {multiDayEventsInDay.map(event => {
-          const eventStart = startOfDay(parseISO(event.startDate));
-          const eventEnd = startOfDay(parseISO(event.endDate));
+          const eventStart = startOfDay(parseISO(event.start_date));
+          const eventEnd = startOfDay(parseISO(event.end_date));
           const currentDate = startOfDay(selectedDate);
 
           const eventTotalDays = differenceInDays(eventEnd, eventStart) + 1;

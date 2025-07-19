@@ -4,7 +4,7 @@ import { useCalendar } from "../../contexts/calendar-context";
 
 import { cn } from "@/lib/utils";
 
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
 
 interface IProps {
   day: number;

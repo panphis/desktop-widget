@@ -1,5 +1,4 @@
-import type { TEventColor } from "./types";
-import type { IEvent } from "./interfaces";
+import type { TEventColor  , IEvent } from "@/types";
 
 
 const COLORS: TEventColor[] = ["blue", "green", "red", "yellow", "purple", "orange", "gray"];
@@ -14,8 +13,8 @@ const mockGenerator = (numberOfEvents: number): IEvent[] => {
   const result: IEvent[] = [
     {
       id: 1204,
-      startDate: new Date("2025-09-20T00:00:00-03:00").toISOString(),
-      endDate: new Date("2025-09-20T23:59:00-03:00").toISOString(),
+      start_date: new Date("2025-09-20T00:00:00-03:00").toISOString(),
+      end_date: new Date("2025-09-20T23:59:00-03:00").toISOString(),
       title: "My wedding :)",
       color: "red",
       description: "Can't wait to see the most beautiful woman in that dress!",
@@ -34,8 +33,8 @@ const mockGenerator = (numberOfEvents: number): IEvent[] => {
   // Create an event happening now
   const currentEvent = {
     id: currentId++,
-    startDate: new Date(now.getTime() - 30 * 60000).toISOString(),
-    endDate: new Date(now.getTime() + 30 * 60000).toISOString(),
+    start_date: new Date(now.getTime() - 30 * 60000).toISOString(),
+    end_date: new Date(now.getTime() + 30 * 60000).toISOString(),
     title: EVENTS[Math.floor(Math.random() * EVENTS.length)],
     color: COLORS[Math.floor(Math.random() * COLORS.length)],
     description: "描述",
@@ -58,28 +57,28 @@ const mockGenerator = (numberOfEvents: number): IEvent[] => {
     // Determine if this is a multi-day event (10% chance)
     const isMultiDay = Math.random() < 0.1;
 
-    const startDate = new Date(startRange.getTime() + Math.random() * (endRange.getTime() - startRange.getTime()));
+    const start_date = new Date(startRange.getTime() + Math.random() * (endRange.getTime() - startRange.getTime()));
 
     // Skip if the date is September 20th
-    if (startDate.getMonth() === 8 && startDate.getDate() === 20) {
+    if (start_date.getMonth() === 8 && start_date.getDate() === 20) {
       continue;
     }
 
     // Set time between 8 AM and 8 PM
-    startDate.setHours(8 + Math.floor(Math.random() * 8), Math.floor(Math.random() * 4) * 15, 0, 0);
+    start_date.setHours(8 + Math.floor(Math.random() * 8), Math.floor(Math.random() * 4) * 15, 0, 0);
 
-    const endDate = new Date(startDate);
+    const end_date = new Date(start_date);
 
     if (isMultiDay) {
       // Multi-day event: Add 1-4 days
       const additionalDays = Math.floor(Math.random() * 4) + 1;
-      endDate.setDate(startDate.getDate() + additionalDays);
+      end_date.setDate(start_date.getDate() + additionalDays);
 
       // Ensure multi-day events don't cross September 20th
-      const endMonth = endDate.getMonth();
-      const endDay = endDate.getDate();
-      const startMonth = startDate.getMonth();
-      const startDay = startDate.getDate();
+      const endMonth = end_date.getMonth();
+      const endDay = end_date.getDate();
+      const startMonth = start_date.getMonth();
+      const startDay = start_date.getDate();
 
       // Check if event spans across September 20th
       if (
@@ -89,16 +88,16 @@ const mockGenerator = (numberOfEvents: number): IEvent[] => {
         continue;
       }
 
-      endDate.setHours(8 + Math.floor(Math.random() * 12), Math.floor(Math.random() * 4) * 15, 0, 0);
+      end_date.setHours(8 + Math.floor(Math.random() * 12), Math.floor(Math.random() * 4) * 15, 0, 0);
     } else {
       const durationMinutes = (Math.floor(Math.random() * 11) + 2) * 15; // 30 to 180 minutes, multiple of 15
-      endDate.setTime(endDate.getTime() + durationMinutes * 60 * 1000);
+      end_date.setTime(end_date.getTime() + durationMinutes * 60 * 1000);
     }
 
     result.push({
       id: currentId++,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
+      start_date: start_date.toISOString(),
+      end_date: end_date.toISOString(),
       title: EVENTS[Math.floor(Math.random() * EVENTS.length)],
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
       description: "描述",

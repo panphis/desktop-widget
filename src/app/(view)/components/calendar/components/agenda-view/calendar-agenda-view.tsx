@@ -1,27 +1,46 @@
 import { useMemo } from "react";
 import { CalendarX2 } from "lucide-react";
-import { parseISO, format, endOfDay, startOfDay, isSameMonth } from "date-fns";
+import { parseISO, format, endOfDay, startOfDay, isSameMonth, isSameDay } from "date-fns";
 
 import { useCalendar } from "../../contexts/calendar-context";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AgendaDayGroup } from "./agenda-day-group";
 
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/types";
+import { useEvents } from "@/hooks/use-event";
 
-interface IProps {
-  singleDayEvents: IEvent[];
-  multiDayEvents: IEvent[];
-}
 
-export function CalendarAgendaView({ singleDayEvents, multiDayEvents }: IProps) {
+export function CalendarAgendaView() {
   const { selectedDate } = useCalendar();
+
+  const startTime = startOfDay(selectedDate);
+  const endTime = endOfDay(selectedDate);
+  
+  const { data:  filteredEvents = [] } = useEvents(
+    startTime.toISOString(), 
+    endTime.toISOString()
+  );
+  
+
+  const singleDayEvents = filteredEvents.filter(event => {
+    const startDate = parseISO(event.start_date);
+    const endDate = parseISO(event.end_date);
+    return isSameDay(startDate, endDate);
+  });
+
+  const multiDayEvents = filteredEvents.filter(event => {
+    const startDate = parseISO(event.start_date);
+    const endDate = parseISO(event.end_date);
+    return !isSameDay(startDate, endDate);
+  });
+
 
   const eventsByDay = useMemo(() => {
     const allDates = new Map<string, { date: Date; events: IEvent[]; multiDayEvents: IEvent[] }>();
 
     singleDayEvents.forEach(event => {
-      const eventDate = parseISO(event.startDate);
+      const eventDate = parseISO(event.start_date);
       if (!isSameMonth(eventDate, selectedDate)) return;
 
       const dateKey = format(eventDate, "yyyy-MM-dd");
@@ -34,8 +53,8 @@ export function CalendarAgendaView({ singleDayEvents, multiDayEvents }: IProps) 
     });
 
     multiDayEvents.forEach(event => {
-      const eventStart = parseISO(event.startDate);
-      const eventEnd = parseISO(event.endDate);
+      const eventStart = parseISO(event.start_date);
+      const eventEnd = parseISO(event.end_date);
 
       let currentDate = startOfDay(eventStart);
       const lastDate = endOfDay(eventEnd);
