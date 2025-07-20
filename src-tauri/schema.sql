@@ -1,4 +1,3 @@
--- 创建事件表
 CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
@@ -19,3 +18,7 @@ CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at);
 CREATE INDEX IF NOT EXISTS idx_events_is_deleted ON events(is_deleted);
 CREATE INDEX IF NOT EXISTS idx_events_title ON events(title);
 CREATE INDEX IF NOT EXISTS idx_events_description ON events(description); 
+
+
+
+

@@ -1,96 +1,65 @@
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 
 mod commands;
+mod db;
+mod jobs;
+
+
 use tauri_plugin_autostart::MacosLauncher;
 
 use commands::greet::greet;
 use commands::settings::{is_auto_start_enabled,set_enable_auto_start};
 use commands::setup::{set_complete,setup};
 
-use commands::events_diesel::{
-    create_event, 
-    get_all_events, 
-    get_event_by_id, 
-    update_event, 
-    delete_event, 
-    soft_delete_event,
-    get_events_by_date_range,
-    get_events_by_date,
-    get_events_by_month,
-    search_events,
-    get_recent_events,
-    get_upcoming_events,
-    get_event_stats,
-    cleanup_deleted_events,
-    get_events_with_filter
-};
 
 use tauri::async_runtime::spawn;
 use std::sync::Mutex;
 use tauri_plugin_window_state::{Builder, StateFlags};
 use std::time::Instant;
-use crate::commands::shortcut_commands::ShortcutItem;
-use crate::commands::shortcut_commands::{
-    shortcut_get_all,
-    shortcut_create,
-    shortcut_update,
-    shortcut_delete,
-    shortcut_open_path,
-    shortcut_select_file,
-    shortcut_select_folder,
-    shortcut_get_file_icon
-};
+use service::sea_orm::DatabaseConnection;
 
-pub struct ShortcutStore {
-    pub shortcuts: Mutex<Vec<ShortcutItem>>,
+use db::setup_database;
+use jobs::{ setup_jobs_database};
+
+
+pub struct AppState {
+    db_conn: DatabaseConnection,
 }
 
-impl Default for ShortcutStore {
-    fn default() -> Self {
-        Self {
-            shortcuts: Mutex::new(Vec::new()),
-        }
-    }
-}
-
-
-use diesel::prelude::*;
-use diesel::sqlite::SqliteConnection;
-
-pub fn establish_connection() -> SqliteConnection {
-    let database_url = "sqlite:shortcuts.db";
-    SqliteConnection::establish(database_url)
-        .expect(&format!("Error connecting to {}", database_url))
-}
-
-// 初始化数据库
-pub fn init_database() -> Result<(), Box<dyn std::error::Error>> {
-    let mut conn = establish_connection();
-    
-    // 创建表（如果不存在）
-    diesel::sql_query(
-        "CREATE TABLE IF NOT EXISTS shortcuts (
-            id TEXT PRIMARY KEY NOT NULL,
-            name TEXT NOT NULL,
-            path TEXT NOT NULL,
-            type TEXT NOT NULL,
-            icon TEXT,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL
-        )"
-    ).execute(&mut conn)?;
-    
-    Ok(())
-}
-
-pub fn run() {
+#[tokio::main]
+pub async fn run() {
   let start_time = Instant::now();
 
-  let app_handle = tauri::Builder::default()
+    // db
+    let db_conn = setup_database().await;
+    // jobs
+    let pool = setup_jobs_database().await;
+    let app_handle = tauri::Builder::default()
+        .manage(AppState { db_conn, })
+      .manage(Mutex::new(commands::setup::SetupState::new()))
+      .plugin(tauri_plugin_notification::init())
+      .plugin(tauri_plugin_updater::Builder::new().build())
       .plugin(Builder::default().with_state_flags(StateFlags::default()).build())
       .plugin(tauri_plugin_dialog::init())
       .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![])))
-      .manage(Mutex::new(commands::setup::SetupState::new()))
+      .plugin(
+          tauri_plugin_log::Builder::default()
+              .target(tauri_plugin_log::Target::new(
+                  tauri_plugin_log::TargetKind::Stdout,
+              ))
+              .target(tauri_plugin_log::Target::new(
+                  tauri_plugin_log::TargetKind::LogDir {
+                      file_name: Some("logs".to_string()),
+                  },
+              ))
+              .level_for("tauri", log::LevelFilter::Error)
+              .level_for("hyper", log::LevelFilter::Off)
+              .level_for("tracing", log::LevelFilter::Info)
+              .level_for("sea_orm", log::LevelFilter::Info)
+              .level_for("sqlx", log::LevelFilter::Off)
+              .level_for("tao", log::LevelFilter::Off)
+              .build(),
+      )
       .setup(move |app| {
         if cfg!(debug_assertions) {
           app.handle().plugin(
@@ -113,31 +82,7 @@ pub fn run() {
         is_auto_start_enabled,
         set_enable_auto_start,
         set_complete,
-        greet,
-        // 事件管理命令
-        create_event,
-        get_all_events,
-        get_event_by_id,
-        update_event,
-        delete_event,
-        soft_delete_event,
-        get_events_by_date_range,
-        get_events_by_date,
-        get_events_by_month,
-        search_events,
-        get_recent_events,
-        get_upcoming_events,
-        get_event_stats,
-        cleanup_deleted_events,
-        get_events_with_filter,
-        shortcut_get_all,
-        shortcut_create,
-        shortcut_update,
-        shortcut_delete,
-        shortcut_open_path,
-        shortcut_select_file,
-        shortcut_select_folder,
-        shortcut_get_file_icon
+        greet
       ]);
 
     if let Err(e) = app_handle.run(tauri::generate_context!()) {
