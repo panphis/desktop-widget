@@ -15,7 +15,7 @@ import {
     DialogTrigger
 } from "@/components/ui"
 import { Trash2 } from "lucide-react";
-import { useDeleteEvent } from "@/hooks/use-event";
+import { useDeleteTodo } from "@/hooks/use-event";
 import { cn } from "@/lib/utils";
 
 
@@ -26,7 +26,7 @@ type DeleteEventButtonProps = {
 
 export const DeleteEventButton: FC<DeleteEventButtonProps> = ({ event, className }) => {
 
-    const { mutateAsync: deleteEvent } = useDeleteEvent();
+    const { mutateAsync: deleteEvent } = useDeleteTodo();
 
     const handleDeleteEvent = async () => {
         await deleteEvent(event.id);

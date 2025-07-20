@@ -78,7 +78,7 @@ export function CalendarHeader() {
         <AddEventDialog>
           <Button className="w-full sm:w-auto">
             <Plus />
-            创建事件
+            创建待办
           </Button>
         </AddEventDialog>
       </div>

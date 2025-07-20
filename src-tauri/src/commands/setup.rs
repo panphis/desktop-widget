@@ -23,13 +23,13 @@ pub async fn set_complete(
     app: AppHandle,
     state: State<'_, Mutex<SetupState>>,
     task: String,
-) -> Result<(), ()> {
+) -> Result<(), String> {
     // Lock the state without write access
     let mut state_lock = state.lock().unwrap();
     match task.as_str() {
         "frontend" => state_lock.frontend_task = true,
         "backend" => state_lock.backend_task = true,
-        _ => panic!("invalid task completed!"),
+        _ => return Err(format!("Invalid task: {}", task)),
     }
     // Check if both tasks are completed
     if state_lock.backend_task && state_lock.frontend_task {
@@ -45,7 +45,7 @@ pub async fn set_complete(
 }
 
 // An async function that does some heavy setup task
-pub async fn setup(app: AppHandle) -> Result<(), ()> {
+pub async fn setup(app: AppHandle) -> Result<(), String> {
   // 在开发环境中，立即完成后端任务
   set_complete(
       app.clone(),

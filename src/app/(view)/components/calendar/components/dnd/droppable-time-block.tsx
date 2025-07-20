@@ -8,7 +8,7 @@ import { ItemTypes } from "./draggable-event";
 
 import type { IEvent } from "@/types";
 
-import { useUpdateEvent } from "@/hooks/use-event";
+import { useUpdateTodo } from "@/hooks/use-event";
 interface DroppableTimeBlockProps {
   date: Date;
   hour: number;
@@ -18,7 +18,7 @@ interface DroppableTimeBlockProps {
 
 export function DroppableTimeBlock({ date, hour, minute, children }: DroppableTimeBlockProps) {
   
-  const { mutateAsync: updateEvent } = useUpdateEvent();
+  const { mutateAsync: updateEvent } = useUpdateTodo();
   const [{ isOver, canDrop }, drop] = useDrop(
     () => ({
       accept: ItemTypes.EVENT,

@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0.192", features = ["derive"] }
 ulid = "1.1.2"
+chrono = { version = "0.4", features = ["serde"] }
 
 [dependencies.sea-orm]
 version = "0.12.4"

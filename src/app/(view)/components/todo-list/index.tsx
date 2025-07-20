@@ -6,15 +6,15 @@ import {
 } from "@/components/ui";
 import { Trash2,  Calendar } from "lucide-react"; 
 
-import { useGetUpcomingEvents, useDeleteEvent } from "@/hooks/use-event";
+import { useGetUpcomingTodos, useDeleteTodo } from "@/hooks/use-event";
 
 
 
 export function TodoList() { 
-  const { data: events = [], isLoading } = useGetUpcomingEvents();
+  const { data: events = [], isLoading } = useGetUpcomingTodos();
 
 
-  const { mutateAsync: deleteEvent } = useDeleteEvent();
+  const { mutateAsync: deleteEvent } = useDeleteTodo();
 
 
   const deleteTodo = async (id: number) => {

@@ -5,7 +5,7 @@ import { useCalendar } from "../../contexts/calendar-context";
 
 import { YearViewMonth } from "./year-view-month";
  
-import { useEvents } from "@/hooks/use-event";
+import { useTodos } from "@/hooks/use-event";
 
  
 
@@ -16,7 +16,7 @@ export function CalendarYearView() {
   const startTime = startOfYear(selectedDate);
   const endTime = endOfYear(selectedDate);
   
-  const { data:  filteredEvents = [] } = useEvents(
+  const { data:  filteredEvents = [] } = useTodos(
     startTime.toISOString(), 
     endTime.toISOString()
   );

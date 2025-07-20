@@ -10,7 +10,7 @@ import { getEventsCount, navigateDate, rangeText } from "../../helpers";
 ;
 import { formatTime } from "@/lib/format";
 import { endOfDay, startOfDay } from "date-fns";
-import { useEvents } from "@/hooks/use-event";
+import { useTodos } from "@/hooks/use-event";
 
 
 
@@ -20,7 +20,7 @@ export function DateNavigator() {
   const startTime = startOfDay(selectedDate);
   const endTime = endOfDay(selectedDate);
   
-  const { data: events = [] } = useEvents(
+  const { data: events = [] } = useTodos(
     startTime.toISOString(), 
     endTime.toISOString()
   );
@@ -38,7 +38,7 @@ export function DateNavigator() {
         <span className="text-lg font-semibold">
           {formatTime(selectedDate, "YYYY MMMM")}
         </span>
-        <Badge variant="outline" className="px-1.5" title={`${eventCount} 件事件`}>
+        <Badge variant="outline" className="px-1.5" title={`${eventCount} 件待办`}>
           {eventCount} 件待办
         </Badge>
       </div>

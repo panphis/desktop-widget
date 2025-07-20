@@ -6,7 +6,7 @@ import { DayCell } from "./day-cell";
 
 import { getCalendarCells, calculateMonthEventPositions } from "../../helpers";
 
-import { useEvents } from "@/hooks/use-event";
+import { useTodos } from "@/hooks/use-event";
 import { isSameDay, parseISO, startOfMonth, endOfMonth } from "date-fns";
 
 
@@ -20,7 +20,7 @@ export function CalendarMonthView() {
   const startTime = startOfMonth(selectedDate);
   const endTime = endOfMonth(selectedDate);
   
-  const { data:  filteredEvents = [] } = useEvents(
+  const { data:  filteredEvents = [] } = useTodos(
     startTime.toISOString(), 
     endTime.toISOString()
   );

@@ -14,7 +14,7 @@ import { eventSchema } from "../../schemas";
 import type { IEvent } from "@/types";
 import type { TEventFormData } from "../../schemas";
 import { EventForm } from "./event-form";
-import { useUpdateEvent } from "@/hooks/use-event";
+import { useUpdateTodo } from "@/hooks/use-event";
 
 interface IProps {
   children: React.ReactNode;
@@ -24,7 +24,7 @@ interface IProps {
 export function EditEventDialog({ children, event }: IProps) {
   const { isOpen, onClose, onToggle } = useDisclosure();
 
-  const { mutateAsync: updateEvent } = useUpdateEvent();
+  const { mutateAsync: updateEvent } = useUpdateTodo();
   const formId = useId();
 
   const form = useForm<TEventFormData>({

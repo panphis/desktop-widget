@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { groupEvents, getEventBlockStyle, getVisibleHours } from "../../helpers";
 
 import { formatTime } from "@/lib/format";
-import { useEvents } from "@/hooks/use-event";
+import { useTodos } from "@/hooks/use-event";
 
 
 
@@ -26,7 +26,7 @@ export function CalendarWeekView() {
   const startTime = startOfWeek(selectedDate);
   const endTime = endOfWeek(selectedDate);
   
-  const { data:  filteredEvents = [] } = useEvents(
+  const { data:  filteredEvents = [] } = useTodos(
     startTime.toISOString(), 
     endTime.toISOString()
   );

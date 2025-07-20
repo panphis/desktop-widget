@@ -1,56 +1,56 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { getEvents, createEvent, updateEvent , deleteEvent, getUpcomingEvents} from "@/service";
+import { getTodos, createTodo, updateTodo, deleteTodo, getUpcomingTodos } from "@/service";
 import { IEvent, IEventFormData } from "@/types";
 
-export const useEvents = (start_date: string, end_date: string) => {
+export const useTodos = (start_date: string, end_date: string) => {
     return useQuery({
-        queryKey: ["events", start_date, end_date],
-        queryFn: () => getEvents(start_date, end_date),
+        queryKey: ["todo", start_date, end_date],
+        queryFn: () => getTodos(start_date, end_date),
     });
 };
 
 
 
-export const useCreateEvent = () => {
+export const useCreateTodo = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (event: IEventFormData) => createEvent(event),
+        mutationFn: (event: IEventFormData) => createTodo(event),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["events"] });
-            queryClient.invalidateQueries({ queryKey: ["upcoming-events"] });
+            queryClient.invalidateQueries({ queryKey: ["todo"] });
+            queryClient.invalidateQueries({ queryKey: ["upcoming-todo"] });
         },
     });
 };
 
 
-export const useUpdateEvent = () => {
+export const useUpdateTodo = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (event: IEvent) => updateEvent(event),
+        mutationFn: (event: IEvent) => updateTodo(event),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["events"] });
-            queryClient.invalidateQueries({ queryKey: ["upcoming-events"] });
+            queryClient.invalidateQueries({ queryKey: ["todo"] });
+            queryClient.invalidateQueries({ queryKey: ["upcoming-todo"] });
         },
     });
 };
 
-export const useDeleteEvent = () => {
+export const useDeleteTodo = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id: number) => deleteEvent(id),
+        mutationFn: (id: number) => deleteTodo(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["events"] });
-            queryClient.invalidateQueries({ queryKey: ["upcoming-events"] });
+            queryClient.invalidateQueries({ queryKey: ["todo"] });
+            queryClient.invalidateQueries({ queryKey: ["upcoming-todo"] });
         },
     });
 };
 
 
 
-export const useGetUpcomingEvents = () => {
+export const useGetUpcomingTodos = () => {
     return useQuery({
-        queryKey: ["upcoming-events"],
-        queryFn: () => getUpcomingEvents(),
+        queryKey: ["upcoming-todo"],
+        queryFn: () => getUpcomingTodos(),
     });
 }

@@ -11,7 +11,7 @@ import { DayViewMultiDayEventsRow } from "./day-view-multi-day-events-row";
 import { cn } from "@/lib/utils";
 import { groupEvents, getEventBlockStyle, getCurrentEvents, getVisibleHours } from "../../helpers";
 import { formatTime } from "@/lib/format";
-import { useEvents } from "@/hooks/use-event";
+import { useTodos } from "@/hooks/use-event";
 import { startOfDay, endOfDay } from "date-fns";
 
 
@@ -21,7 +21,7 @@ export function CalendarDayView() {
   const startTime = startOfDay(selectedDate);
   const endTime = endOfDay(selectedDate);
   
-  const { data:  filteredEvents = [] } = useEvents(
+  const { data:  filteredEvents = [] } = useTodos(
     startTime.toISOString(), 
     endTime.toISOString()
   );
@@ -161,7 +161,7 @@ export function CalendarDayView() {
               <p className="text-sm font-semibold text-foreground">进行中</p>
             </div>
           ) : (
-            <p className="p-4 text-center text-sm italic text-muted-foreground">暂无事件</p>
+            <p className="p-4 text-center text-sm italic text-muted-foreground">暂无待办事项</p>
           )}
 
           {currentEvents.length > 0 && (

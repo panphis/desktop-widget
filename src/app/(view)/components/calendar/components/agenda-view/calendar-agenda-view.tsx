@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { AgendaDayGroup } from "./agenda-day-group";
 
 import type { IEvent } from "@/types";
-import { useEvents } from "@/hooks/use-event";
+import { useTodos } from "@/hooks/use-event";
 
 
 export function CalendarAgendaView() {
@@ -17,7 +17,7 @@ export function CalendarAgendaView() {
   const startTime = startOfDay(selectedDate);
   const endTime = endOfDay(selectedDate);
   
-  const { data:  filteredEvents = [] } = useEvents(
+  const { data:  filteredEvents = [] } = useTodos(
     startTime.toISOString(), 
     endTime.toISOString()
   );
@@ -89,7 +89,7 @@ export function CalendarAgendaView() {
           {!hasAnyEvents && (
             <div className="flex flex-col items-center justify-center gap-2 py-20 text-muted-foreground">
               <CalendarX2 className="size-10" />
-              <p className="text-sm md:text-base">该月暂无事件</p>
+              <p className="text-sm md:text-base">该月暂无待办事项</p>
             </div>
           )}
         </div>

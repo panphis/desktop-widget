@@ -1,1 +1,1 @@
-export { getEvents, createEvent, updateEvent, deleteEvent, getUpcomingEvents } from "./event";
+export { getTodos  , createTodo, updateTodo, deleteTodo, getUpcomingTodos } from "./todo";

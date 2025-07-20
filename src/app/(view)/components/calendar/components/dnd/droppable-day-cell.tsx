@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { ItemTypes } from "./draggable-event";
 
 import type { IEvent, ICalendarCell } from "@/types";
-import { useUpdateEvent } from "@/hooks/use-event";
+import { useUpdateTodo } from "@/hooks/use-event";
 
 interface DroppableDayCellProps {
   cell: ICalendarCell;
@@ -16,7 +16,7 @@ interface DroppableDayCellProps {
 
 export function DroppableDayCell({ cell, children }: DroppableDayCellProps) {
   
-  const { mutateAsync: updateEvent } = useUpdateEvent();
+  const { mutateAsync: updateEvent } = useUpdateTodo();
 
   const [{ isOver, canDrop }, drop] = useDrop(
     () => ({

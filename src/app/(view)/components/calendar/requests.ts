@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { EventResponse } from "./hooks/use-events";
 
-export const getEvents = async (): Promise<EventResponse[]> => {
+export const getTodo = async (): Promise<EventResponse[]> => {
   try {
     const events = await invoke<EventResponse[]>("get_all_events");
     return events;

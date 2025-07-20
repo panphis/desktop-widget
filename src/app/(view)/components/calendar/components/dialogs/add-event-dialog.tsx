@@ -12,7 +12,7 @@ import { eventSchema } from "../../schemas";
 import type { TEventFormData } from "../../schemas";
 import { EventForm } from "./event-form";
 
-import { useCreateEvent } from "@/hooks/use-event";
+import { useCreateTodo } from "@/hooks/use-event";
 
 interface IProps {
   children: React.ReactNode;
@@ -24,7 +24,7 @@ export function AddEventDialog({ children, start_date }: IProps) {
 
   const { isOpen, onClose, onToggle } = useDisclosure();
   const formId = useId();
-  const { mutateAsync: createEvent } = useCreateEvent();
+  const { mutateAsync: createEvent } = useCreateTodo();
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -61,7 +61,7 @@ export function AddEventDialog({ children, start_date }: IProps) {
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>新建事件</DialogTitle>
+          <DialogTitle>新建待办</DialogTitle>
         </DialogHeader>
 
         <EventForm onSubmit={onSubmit} formId={formId} onCancel={onClose} />
@@ -74,7 +74,7 @@ export function AddEventDialog({ children, start_date }: IProps) {
           </DialogClose>
 
           <Button form={formId} type="submit">
-            创建事件
+              新建待办
           </Button>
         </DialogFooter>
       </DialogContent>
