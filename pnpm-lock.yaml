@@ -98,6 +98,9 @@ importers:
       '@tauri-apps/plugin-dialog':
         specifier: ^2.3.0
         version: 2.3.0
+      '@tauri-apps/plugin-opener':
+        specifier: ^2.4.0
+        version: 2.4.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1338,6 +1341,9 @@ packages:
 
   '@tauri-apps/plugin-dialog@2.3.0':
     resolution: {integrity: sha512-ylSBvYYShpGlKKh732ZuaHyJ5Ie1JR71QCXewCtsRLqGdc8Is4xWdz6t43rzXyvkItM9syNPMvFVcvjgEy+/GA==}
+
+  '@tauri-apps/plugin-opener@2.4.0':
+    resolution: {integrity: sha512-43VyN8JJtvKWJY72WI/KNZszTpDpzHULFxQs0CJBIYUdCRowQ6Q1feWTDb979N7nldqSuDOaBupZ6wz2nvuWwQ==}
 
   '@tybys/wasm-util@0.9.0':
     resolution: {integrity: sha512-6+7nlbMVX/PVDCwaIQ8nTOPveOcFLSt8GcXdx8hD0bt39uWxYT88uXzqTd4fTvqta7oeUJqudepapKNt2DYJFw==}
@@ -4133,6 +4139,10 @@ snapshots:
       '@tauri-apps/cli-win32-x64-msvc': 2.6.2
 
   '@tauri-apps/plugin-dialog@2.3.0':
+    dependencies:
+      '@tauri-apps/api': 2.6.0
+
+  '@tauri-apps/plugin-opener@2.4.0':
     dependencies:
       '@tauri-apps/api': 2.6.0
 

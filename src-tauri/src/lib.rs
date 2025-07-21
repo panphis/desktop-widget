@@ -2,8 +2,7 @@
 
 mod commands;
 mod db;
-
-
+mod utils;
 use tauri_plugin_autostart::MacosLauncher;
 use tauri::Manager;
 
@@ -33,6 +32,7 @@ use commands::todo::{
     mark_todos_completed,
     get_todo_priority_distribution,
 };
+use commands::shortcut::{open_any_file, get_file_icon_base64};
 use commands::greet::greet;
 
 
@@ -63,6 +63,7 @@ pub async fn run() {
       .plugin(tauri_plugin_notification::init())
       .plugin(Builder::default().with_state_flags(StateFlags::default()).build())
       .plugin(tauri_plugin_dialog::init())
+      .plugin(tauri_plugin_opener::init())
       .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![])))
       .plugin(
           tauri_plugin_log::Builder::default()
@@ -106,7 +107,6 @@ pub async fn run() {
         create_todo,
         update_todo,
         delete_todo,
-        // 从旧版本迁移的事件查询命令
         get_todos_by_date_range,
         get_todos_by_date,
         search_todos,
@@ -114,7 +114,6 @@ pub async fn run() {
         get_upcoming_todos,
         get_todos_with_filter,
         cleanup_deleted_todos,
-        // 新增的辅助命令
         create_todo_simple,
         create_todos_batch,
         update_todos_batch,
@@ -123,10 +122,16 @@ pub async fn run() {
         duplicate_todo,
         mark_todos_completed,
         get_todo_priority_distribution,
-        // Settings commands
+
+        // 快捷方式
+        open_any_file,
+        get_file_icon_base64,
+
+        // 基本设置
         is_auto_start_enabled,
         set_enable_auto_start,
         set_complete,
+        // 测试通信
         greet
       ]);
 

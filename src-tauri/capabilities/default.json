@@ -31,6 +31,10 @@
 
     "window-state:default",
 
-    "core:tray:default"
+    "core:tray:default",
+
+    "dialog:allow-open",
+    "dialog:default",
+    "opener:allow-open-path"
   ]
 }

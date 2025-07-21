@@ -55,3 +55,14 @@ pub enum Todo {
     EndDate,
     Color,
 }
+
+
+#[derive(DeriveIden)]
+pub enum Shortcut {
+    #[sea_orm(iden = "shortcuts")]
+    Table,
+    Id,
+    Name,
+    Description,
+    Url,
+}

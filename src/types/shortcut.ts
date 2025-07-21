@@ -1,4 +1,4 @@
-export interface ShortcutItem {
+export interface ShortcutType {
   id: string;
   name: string;
   path: string;
