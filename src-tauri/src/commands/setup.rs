@@ -45,13 +45,13 @@ pub async fn set_complete(
 }
 
 // An async function that does some heavy setup task
-pub async fn setup(app: AppHandle) -> Result<(), String> {
-  // 在开发环境中，立即完成后端任务
-  set_complete(
-      app.clone(),
-      app.state::<Mutex<SetupState>>(),
-      "backend".to_string(),
-  )
-  .await?;
-  Ok(())
-}
+// pub async fn setup(app: AppHandle) -> Result<(), String> {
+//   // 在开发环境中，立即完成后端任务
+//   set_complete(
+//       app.clone(),
+//       app.state::<Mutex<SetupState>>(),
+//       "backend".to_string(),
+//   )
+//   .await?;
+//   Ok(())
+// }

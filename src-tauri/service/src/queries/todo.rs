@@ -1,6 +1,6 @@
 use sea_orm::*;
 use crate::entities::{todos, Todos};
-use crate::models::{TodoCreate, TodoUpdate, TodoResponse, TodoFilter};
+use crate::models::{todo::{TodoCreate, TodoUpdate, TodoResponse, TodoFilter}};
 use chrono::{DateTime, Utc};
 
 pub async fn get_all_todos(db: &DatabaseConnection) -> Result<Vec<TodoResponse>, DbErr> {
@@ -71,7 +71,7 @@ pub async fn delete_todo(db: &DatabaseConnection, id: i32) -> Result<bool, DbErr
         .await?;
 
     if let Some(todo) = todo {
-        let mut todo: todos::ActiveModel = todo.into();
+        let todo: todos::ActiveModel = todo.into();
         todo.update(db).await?;
         Ok(true)
     } else {

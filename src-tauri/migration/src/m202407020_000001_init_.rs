@@ -28,6 +28,17 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
+        manager
+            .create_table(
+                Table::create()
+                    .table(Shortcut::Table)
+                    .if_not_exists()
+                    .col(ColumnDef::new(Shortcut::Id).integer().not_null().auto_increment().primary_key())
+                    .col(ColumnDef::new(Shortcut::Path).string().not_null())
+                    .to_owned(),
+            )
+            .await?;
+
         Ok(())
     }
 
@@ -36,6 +47,10 @@ impl MigrationTrait for Migration {
 
         manager
             .drop_table(Table::drop().table(Todo::Table).to_owned())
+            .await?;
+
+            manager
+            .drop_table(Table::drop().table(Shortcut::Table).to_owned())
             .await?;
 
         Ok(())
@@ -62,7 +77,6 @@ pub enum Shortcut {
     #[sea_orm(iden = "shortcuts")]
     Table,
     Id,
-    Name,
-    Description,
-    Url,
+    #[sea_orm(iden = "path")]
+    Path,
 }

@@ -3,8 +3,17 @@
 mod commands;
 mod db;
 mod utils;
+
 use tauri_plugin_autostart::MacosLauncher;
 use tauri::Manager;
+use tauri_plugin_window_state::{Builder,StateFlags};
+use std::sync::Mutex;
+use std::time::Instant;
+
+
+use service::sea_orm::DatabaseConnection;
+use db::setup_database;
+
 
 use commands::settings::{is_auto_start_enabled,set_enable_auto_start};
 use commands::setup::set_complete;
@@ -30,18 +39,11 @@ use commands::todo::{
     get_todo_details,
     duplicate_todo,
     mark_todos_completed,
-    get_todo_priority_distribution,
 };
-use commands::shortcut::{open_any_file, get_file_icon_base64};
+use commands::shortcut::{open_any_file, get_file_icon_base64,
+     get_shortcuts, create_shortcut, delete_shortcut};
 use commands::greet::greet;
 
-
-use std::sync::Mutex;
-use tauri_plugin_window_state::{Builder, StateFlags};
-use std::time::Instant;
-use service::sea_orm::DatabaseConnection;
-
-use db::setup_database;
 
 
 pub struct AppState {
@@ -121,11 +123,13 @@ pub async fn run() {
         get_todo_details,
         duplicate_todo,
         mark_todos_completed,
-        get_todo_priority_distribution,
 
         // 快捷方式
         open_any_file,
         get_file_icon_base64,
+        get_shortcuts,
+        create_shortcut,
+        delete_shortcut,
 
         // 基本设置
         is_auto_start_enabled,

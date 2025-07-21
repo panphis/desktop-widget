@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Button,
 } from '@/components/ui';
@@ -9,11 +9,12 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { Plus, Folder } from 'lucide-react'; 
 import ShortcutItem from './shortcut-item';
  
- 
+ import { useShortcuts, useCreateShortcut } from "@/hooks/use-shotcut";
 
 export function Shortcut() {
  
-  const [shortcuts, setShortcuts] = useState<string[]>([]);
+  const { data: shortcuts = [] } = useShortcuts();
+  const { mutateAsync: createShortcut } = useCreateShortcut();
 
 
   const handleSelectFile = async () => {
@@ -23,7 +24,7 @@ export function Shortcut() {
     });
     console.log(file);
     if (file) {
-      setShortcuts([...shortcuts, file!])
+      await createShortcut(file);
     }
   }
 
@@ -39,9 +40,9 @@ export function Shortcut() {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="flex flex-wrap gap-4">
         {shortcuts.map((shortcut) => (
-          <ShortcutItem key={shortcut} path={shortcut} />
+          <ShortcutItem key={shortcut.id} shortcut={shortcut} />
         ))}
       </div>
 

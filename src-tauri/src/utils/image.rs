@@ -202,12 +202,3 @@ pub mod platform {
         Err("Icon extraction not supported on this platform".to_string())
     }
 }
-
-// 为了兼容性，保留这些函数
-pub fn get_icon_windows(path: String) -> Result<String, String> {
-    platform::get_icon(path)
-}
-
-pub fn get_icon_macos(path: String) -> Result<String, String> {
-    platform::get_icon(path)
-}

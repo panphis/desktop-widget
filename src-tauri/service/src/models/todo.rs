@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
-use sea_orm::entity::prelude::*;
 use entity::todos;
-use chrono::{DateTime, Utc};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TodoCreate {

@@ -1,5 +1,5 @@
 use tauri::State;
-use service::models::{TodoCreate, TodoUpdate, TodoResponse, TodoFilter };
+use service::models::{todo::{TodoCreate, TodoUpdate, TodoResponse, TodoFilter }};
 use service::queries::todo as todo_queries;
 use chrono::{DateTime, Utc};
 use crate::AppState;
@@ -211,13 +211,6 @@ pub async fn cleanup_deleted_todos(state: State<'_, AppState>) -> Result<u64, St
         .map_err(|e| e.to_string())
 }
 
-// 辅助函数 - 根据 database_diesel.rs 的逻辑
-
-/// 将 DateTime 转换为 RFC3339 字符串
-pub fn datetime_to_string(dt: &DateTime<Utc>) -> String {
-    dt.to_rfc3339()
-}
-
 /// 创建新的待办事项数据 - 简化版本
 #[tauri::command]
 pub async fn create_todo_simple(
@@ -227,10 +220,7 @@ pub async fn create_todo_simple(
     start_date: Option<String>,
     end_date: Option<String>,
     color: Option<String>,
-    priority: Option<String>,
 ) -> Result<TodoResponse, String> {
-    let now = Utc::now();
-    
     // 解析日期字符串
     let start_date_parsed = if let Some(start_str) = start_date {
         DateTime::parse_from_rfc3339(&start_str)
@@ -366,7 +356,6 @@ pub async fn duplicate_todo(
 pub async fn mark_todos_completed(
     state: State<'_, AppState>,
     ids: Vec<i32>,
-    completed: bool
 ) -> Result<Vec<Option<TodoResponse>>, String> {
     let mut results = Vec::new();
     
@@ -384,12 +373,3 @@ pub async fn mark_todos_completed(
     Ok(results)
 }
 
-/// 获取待办事项的优先级分布
-#[tauri::command]
-pub async fn get_todo_priority_distribution(
-    state: State<'_, AppState>
-) -> Result<std::collections::HashMap<String, u64>, String> {
-    // 这个功能需要在查询服务中实现
-    // 暂时返回空的结果
-    Ok(std::collections::HashMap::new())
-} 
