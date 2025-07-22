@@ -3,10 +3,10 @@
 mod commands;
 mod db;
 mod utils;
+mod plugins;
 
 use tauri_plugin_autostart::MacosLauncher;
 use tauri::Manager;
-use tauri_plugin_window_state::{Builder,StateFlags};
 use std::sync::Mutex;
 use std::time::Instant;
 
@@ -14,6 +14,7 @@ use std::time::Instant;
 use service::sea_orm::DatabaseConnection;
 use db::setup_database;
 
+use plugins::window_state_custom;
 
 use commands::settings::{is_auto_start_enabled,set_enable_auto_start};
 use commands::setup::set_complete;
@@ -63,7 +64,7 @@ pub async fn run() {
         .manage(AppState { db_conn, })
       .manage(Mutex::new(commands::setup::SetupState::new()))
       .plugin(tauri_plugin_notification::init())
-      .plugin(Builder::default().with_state_flags(StateFlags::default()).build())
+      .plugin(window_state_custom::init())
       .plugin(tauri_plugin_dialog::init())
       .plugin(tauri_plugin_opener::init())
       .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![])))

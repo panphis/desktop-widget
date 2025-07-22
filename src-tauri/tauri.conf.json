@@ -63,6 +63,27 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "windows": {
+      "allowDowngrades": true,
+      "certificateThumbprint": null,
+      "digestAlgorithm": null,
+      "nsis": null,
+      "signCommand": null,
+      "timestampUrl": null,
+      "tsp": false,
+      "webviewInstallMode": {
+        "silent": true,
+        "type": "offlineInstaller"
+      },
+      "wix": {
+        "language": ["zh-CN"],
+        "template": null,
+        "componentRefs": [],
+        "componentGroupRefs": [],
+        "bannerPath": null,
+        "dialogImagePath": null
+      }
+    }
   }
 }
