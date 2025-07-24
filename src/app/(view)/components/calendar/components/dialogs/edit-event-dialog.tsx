@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogHeader, DialogClose, DialogContent, DialogTrigger, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogHeader, DialogClose, DialogContent, DialogTrigger, DialogTitle, DialogFooter, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
 
 import { eventSchema } from "../../schemas";
 
@@ -41,10 +41,11 @@ export function EditEventDialog({ children, event }: IProps) {
   const onSubmit = async (values: TEventFormData) => {
     try {
       const payload = {
-        ...values, 
+        ...values,
         start_date: values.start_date.toISOString(),
         end_date: values.end_date.toISOString(),
         id: event.id,
+        status: event.status,
       };
       await updateEvent({ ...payload });
       onClose();
@@ -58,25 +59,29 @@ export function EditEventDialog({ children, event }: IProps) {
     <Dialog open={isOpen} onOpenChange={onToggle}>
       <DialogTrigger asChild>{children}</DialogTrigger>
 
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>编辑事件</DialogTitle>
-        </DialogHeader>
+      <DialogPortal>
+        <DialogOverlay>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>编辑事件</DialogTitle>
+            </DialogHeader>
 
-        <EventForm event={event} onSubmit={onSubmit} formId={formId} />
+            <EventForm event={event} onSubmit={onSubmit} formId={formId} />
 
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="outline">
-              取消
-            </Button>
-          </DialogClose>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
+                  取消
+                </Button>
+              </DialogClose>
 
-          <Button form={formId} type="submit">
-            保存更改
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+              <Button form={formId} type="submit">
+                保存更改
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </DialogOverlay>
+      </DialogPortal>
     </Dialog>
   );
 }

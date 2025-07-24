@@ -24,6 +24,8 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Todo::StartDate).string().null())
                     .col(ColumnDef::new(Todo::EndDate).string().null())
                     .col(ColumnDef::new(Todo::Color).string().null())
+                    // 使用 sea_orm_migration 的 .check() 方法，结合 Rust 的格式化字符串提升可读性
+                    .col( ColumnDef::new(Todo::Status).string().null())
                     .to_owned(),
             )
             .await?;
@@ -69,6 +71,7 @@ pub enum Todo {
     #[sea_orm(iden = "end_date")]
     EndDate,
     Color,
+    Status,
 }
 
 

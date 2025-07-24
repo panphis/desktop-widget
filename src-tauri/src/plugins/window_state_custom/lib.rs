@@ -81,7 +81,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             // 在 setup 阶段直接尝试恢复状态
             if let Some(main_window) = app.get_webview_window("main") {
                 let window_clone = main_window.clone();
-                app.run_on_main_thread(move || {
+                let _ = app.run_on_main_thread(move || {
                     restore_state(&window_clone);
                 });
             }
@@ -93,7 +93,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
                     // 应用准备就绪时恢复窗口状态
                     if let Some(main_window) = app_handle.get_webview_window("main") {
                         let window_clone = main_window.clone();
-                        app_handle.run_on_main_thread(move || {
+                        let _ = app_handle.run_on_main_thread(move || {
                             restore_state(&window_clone);
                         });
                     }

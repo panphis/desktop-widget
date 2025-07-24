@@ -5,6 +5,18 @@ use chrono::{DateTime, Utc};
 use crate::AppState;
 use serde_json;
 
+// Status 验证函数
+fn validate_status(status: &Option<String>) -> Result<(), String> {
+    if let Some(status_value) = status {
+        match status_value.as_str() {
+            "todo" | "wip" | "done" => Ok(()),
+            _ => Err(format!("无效的 status 值: {}. 只允许 'todo', 'wip', 'done' 或为空", status_value))
+        }
+    } else {
+        Ok(()) // 空值是允许的
+    }
+}
+
 // 基本 CRUD 操作
 
 #[tauri::command]
@@ -43,6 +55,13 @@ pub async fn create_todo(state: State<'_, AppState>, request: serde_json::Value)
     let color = request.get("color")
         .and_then(|v| v.as_str());
     
+    let status = request.get("status")
+        .and_then(|v| v.as_str());
+    
+    // 验证 status 值
+    let status_option = status.map(|s| s.to_string());
+    validate_status(&status_option)?;
+    
     let todo_data = TodoCreate {
         title: title.to_string(),
         description: Some(description.map(|s| s.to_string()).unwrap_or_default()),
@@ -53,6 +72,7 @@ pub async fn create_todo(state: State<'_, AppState>, request: serde_json::Value)
             .map(|s| DateTime::parse_from_rfc3339(s).unwrap().with_timezone(&Utc).to_rfc3339())
             .unwrap_or_default()),
         color: Some(color.map(|s| s.to_string()).unwrap_or_default()),
+        status: status_option,
     };
 
     todo_queries::create_todo(&state.db_conn, todo_data)
@@ -86,6 +106,13 @@ pub async fn update_todo(state: State<'_, AppState>, request: serde_json::Value)
     let color = request.get("color")
         .and_then(|v| v.as_str());
     
+    let status = request.get("status")
+        .and_then(|v| v.as_str());
+    
+    // 验证 status 值
+    let status_option = status.map(|s| s.to_string());
+    validate_status(&status_option)?;
+    
     // 将 IEvent 转换为 TodoUpdate
     let todo_data = TodoUpdate {
         title: Some(title.to_string()),
@@ -95,6 +122,7 @@ pub async fn update_todo(state: State<'_, AppState>, request: serde_json::Value)
         end_date: end_date
             .map(|s| DateTime::parse_from_rfc3339(s).unwrap().with_timezone(&Utc).to_rfc3339()),
         color: color.map(|s| s.to_string()),
+        status: status_option,
     };
     
     todo_queries::update_todo(&state.db_conn, id, todo_data)
@@ -220,6 +248,7 @@ pub async fn create_todo_simple(
     start_date: Option<String>,
     end_date: Option<String>,
     color: Option<String>,
+    status: Option<String>,
 ) -> Result<TodoResponse, String> {
     // 解析日期字符串
     let start_date_parsed = if let Some(start_str) = start_date {
@@ -238,6 +267,9 @@ pub async fn create_todo_simple(
         None
     };
     
+    // 验证 status 值
+    validate_status(&status)?;
+    
     let todo_data = TodoCreate {
         title,
         description,
@@ -246,6 +278,7 @@ pub async fn create_todo_simple(
         end_date: end_date_parsed
             .map(|dt| dt.to_rfc3339()),
         color,
+        status,
     };
     
     todo_queries::create_todo(&state.db_conn, todo_data)
@@ -335,8 +368,9 @@ pub async fn duplicate_todo(
             title: format!("{} (副本)", original_todo.title),
             description: original_todo.description,
             start_date: original_todo.start_date,
-            end_date: original_todo.end_date,
+            end_date: original_todo.end_date,   
             color: original_todo.color,
+            status: original_todo.status,
         };
         
         // 创建新的待办事项
@@ -361,6 +395,7 @@ pub async fn mark_todos_completed(
     
     for id in ids {
         let update_data = TodoUpdate {
+            status: Some("done".to_string()),
             ..Default::default()
         };
         

@@ -6,7 +6,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogHeader, DialogClose, DialogContent, DialogTrigger, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogHeader,
+  DialogClose,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+  DialogFooter
+} from "@/components/ui/dialog";
 
 import { eventSchema } from "../../schemas";
 import type { TEventFormData } from "../../schemas";
@@ -37,7 +45,7 @@ export function AddEventDialog({ children, start_date }: IProps) {
   const onSubmit = async (values: TEventFormData) => {
     try {
       const payload = {
-        ...values, 
+        ...values,
         start_date: values.start_date.toISOString(),
         end_date: values.end_date.toISOString(),
       };
@@ -63,9 +71,7 @@ export function AddEventDialog({ children, start_date }: IProps) {
         <DialogHeader>
           <DialogTitle>新建待办</DialogTitle>
         </DialogHeader>
-
         <EventForm onSubmit={onSubmit} formId={formId} onCancel={onClose} />
-
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
@@ -74,7 +80,7 @@ export function AddEventDialog({ children, start_date }: IProps) {
           </DialogClose>
 
           <Button form={formId} type="submit">
-              新建待办
+            新建待办
           </Button>
         </DialogFooter>
       </DialogContent>

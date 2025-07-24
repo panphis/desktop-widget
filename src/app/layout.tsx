@@ -27,9 +27,9 @@ export default function RootLayout({
 
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="zh-CN" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen font-[family-name:var(--font-geist-sans)] bg-opacity-30 backdrop-blur-md`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased font-[family-name:var(--font-geist-sans)] bg-opacity-30`}
       >
         <Providers>
           <ThemeProvider
@@ -38,12 +38,14 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <div className="fixed inset-0 -z-10">
+            <div className="fixed inset-0 -z-10 backdrop-blur-md">
               <div className="absolute top-20 left-20 w-72 h-72 rounded-full blur-3xl opacity-30 bg-blue-200 dark:bg-blue-800 transition-all duration-500" />
               <div className="absolute bottom-20 right-20 w-96 h-96 rounded-full blur-3xl opacity-20 bg-purple-400 dark:bg-pink-200 transition-all duration-500" />
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full blur-3xl opacity-25 bg-indigo-400 dark:bg-blue-500 transition-all duration-500" />
             </div>
-            {children}
+            <main>
+              {children}
+            </main>
           </ThemeProvider>
         </Providers>
       </body>

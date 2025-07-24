@@ -13,9 +13,10 @@ export interface IEvent {
   title: string;
   color: TEventColor;
   description: string;
+  status: "todo" | "wip" | "done";
 }
 
-export type IEventFormData  = Omit<IEvent, "id"> 
+export type IEventFormData  = Omit<IEvent, "id" | "status"> 
 
 
 export interface ICalendarCell {

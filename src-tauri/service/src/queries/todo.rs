@@ -26,6 +26,7 @@ pub async fn create_todo(db: &DatabaseConnection, todo_data: TodoCreate) -> Resu
         start_date: Set(todo_data.start_date),
         end_date: Set(todo_data.end_date),
         color: Set(todo_data.color),
+        status: Set(Some(todo_data.status.unwrap_or("todo".to_string()))),
         ..Default::default()
     };
 
@@ -56,6 +57,9 @@ pub async fn update_todo(db: &DatabaseConnection, id: i32, todo_data: TodoUpdate
         if let Some(color) = todo_data.color {
             todo.color = Set(Some(color));
         }
+        if let Some(status) = todo_data.status {
+            todo.status = Set(Some(status));
+        }
         
 
         let todo = todo.update(db).await?;
@@ -72,7 +76,7 @@ pub async fn delete_todo(db: &DatabaseConnection, id: i32) -> Result<bool, DbErr
 
     if let Some(todo) = todo {
         let todo: todos::ActiveModel = todo.into();
-        todo.update(db).await?;
+        todo.delete(db).await?;
         Ok(true)
     } else {
         Ok(false)
@@ -145,15 +149,36 @@ pub async fn get_recent_todos(db: &DatabaseConnection, limit_count: u64) -> Resu
 
 /// 获取即将到来的待办事项
 pub async fn get_upcoming_todos(db: &DatabaseConnection, limit_count: u64) -> Result<Vec<TodoResponse>, DbErr> {
-    let now = Utc::now().to_rfc3339();
     
+        // 获取今天当天和未来 24 小时内将要发生的待办事项
+        // 只要事件的结束时间与当前时间到未来 24 小时有交集的都算进去
+        // 例如：现在时间是五点，某个待办事件开始时间是四点，结束时间是六点，也会被统计进去
+        // 7.23 8:00-7.23 10:00
+        // 7.23 23:00-7.24 1:00
+        // 7.24 8:00-7.24 10:00
+        // 7.24 19:00-7.25 1:00
+        // 7.25 19:00-7.25 1:00
+
+        //  符合条件的只有 7.23 23:00-7.24 1:00  7.24 8:00-7.24 10:00  7.24 19:00-7.25 1:00 这几条数据
+    // 按照注释修改查询条件：只要事件的结束时间与当前时间到未来 24 小时有交集的都算进去
+    use chrono::Duration;
+
+    let now_dt = Utc::now();
+    let start_dt = now_dt.date_naive().and_hms_opt(0, 0, 0).unwrap();
+    let next_24h_dt = now_dt + Duration::hours(24);
+
     let todos = Todos::find()
-        .filter(todos::Column::StartDate.gte(now))
+        .filter(
+            // 只要事件的结束时间与当前时间到未来 24 小时有交集
+            // 即：事件的开始时间小于等于未来24小时，且结束时间大于等于当前时间
+            todos::Column::StartDate.lte(next_24h_dt)
+                .and(todos::Column::EndDate.gte(start_dt))
+        )
         .order_by_asc(todos::Column::StartDate)
         .limit(limit_count)
         .all(db)
         .await?;
-    
+
     Ok(todos.into_iter().map(TodoResponse::from).collect())
 }
 

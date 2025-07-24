@@ -17,6 +17,7 @@ import {
 import { Trash2 } from "lucide-react";
 import { useDeleteTodo } from "@/hooks/use-event";
 import { cn } from "@/lib/utils";
+import { useDisclosure } from "@/hooks/use-disclosure";
 
 
 type DeleteEventButtonProps = {
@@ -28,8 +29,11 @@ export const DeleteEventButton: FC<DeleteEventButtonProps> = ({ event, className
 
     const { mutateAsync: deleteEvent } = useDeleteTodo();
 
+    const { isOpen, onClose, onToggle } = useDisclosure();
+
     const handleDeleteEvent = async () => {
         await deleteEvent(event.id);
+        onClose();
     }
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -38,7 +42,7 @@ export const DeleteEventButton: FC<DeleteEventButtonProps> = ({ event, className
 
     return (<Fragment>
         <div className={cn("relative", className)} onClick={handleClick}>
-            <Dialog>
+            <Dialog open={isOpen} onOpenChange={onToggle}>
                 <DialogTrigger asChild>
                     <Button variant="ghost" size="icon">
                         <Trash2 className="w-4 h-4" />

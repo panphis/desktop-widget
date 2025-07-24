@@ -12,6 +12,7 @@ export const WindowOperations: FC = () => {
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
     useEffect(() => {
+
         const window = getCurrentWindow();
         window.isFullscreen().then((isFullscreen) => {
             setIsFullscreen(isFullscreen);
@@ -37,7 +38,7 @@ export const WindowOperations: FC = () => {
 
     return (<div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" onClick={handleMinimize}>
-            <Minus /> 
+            <Minus />
         </Button>
         <Button variant="ghost" size="icon" onClick={toggleFullscreen}>
             {

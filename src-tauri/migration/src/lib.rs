@@ -1,7 +1,5 @@
 pub use sea_orm_migration::prelude::*;
 
-mod utils;
-
 mod m202407020_000001_init_;
 
 pub struct Migrator;

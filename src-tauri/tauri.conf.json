@@ -68,7 +68,6 @@
       "allowDowngrades": true,
       "certificateThumbprint": null,
       "digestAlgorithm": null,
-      "nsis": null,
       "signCommand": null,
       "timestampUrl": null,
       "tsp": false,
@@ -83,6 +82,18 @@
         "componentGroupRefs": [],
         "bannerPath": null,
         "dialogImagePath": null
+      },
+      "nsis": {
+        "languages": ["zh-CN"],
+        "installerHooks": "./hooks/windows.nsh"
+      }
+    },
+    "linux": {
+      "rpm": {
+        "epoch": 0,
+        "files": {},
+        "release": "1",
+        "postRemoveScript": "./hooks/postUninstallScript.sh"
       }
     }
   }

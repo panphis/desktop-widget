@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex flex-col relative" >
+    <div className="flex flex-col" >
       <TitleBar />
       <main className="p-2">{children}</main>
     </div>

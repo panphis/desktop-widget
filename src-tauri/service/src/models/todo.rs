@@ -8,6 +8,7 @@ pub struct TodoCreate {
     pub start_date: Option<String>,
     pub end_date: Option<String>,
     pub color: Option<String>,
+    pub status: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -17,6 +18,7 @@ pub struct TodoUpdate {
     pub start_date: Option<String>,
     pub end_date: Option<String>,
     pub color: Option<String>,
+    pub status: Option<String>,
 }
 
 impl Default for TodoUpdate {
@@ -27,6 +29,7 @@ impl Default for TodoUpdate {
             start_date: None,
             end_date: None,
             color: None,
+            status: None,
         }
     }
 }
@@ -39,6 +42,7 @@ pub struct TodoResponse {
     pub start_date: Option<String>,
     pub end_date: Option<String>,
     pub color: Option<String>,
+    pub status: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -61,6 +65,7 @@ impl From<todos::Model> for TodoResponse {
             start_date: todo.start_date,
             end_date: todo.end_date,
             color: todo.color,
+            status: todo.status,
         }
     }
 }
