@@ -1,100 +1,105 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "desktop-widget",
-  "version": "0.1.0",
-  "identifier": "com.desktop-widget.dev",
-  "build": {
-    "frontendDist": "../out",
-    "devUrl": "http://localhost:8088",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
-  },
-  "app": {
-    "windows": [
-      {
-        "label": "main",
-        "title": "desktop-widget",
-        "width": 800,
-        "height": 800,
-        "minWidth": 600,
-        "minHeight": 600,
-        "resizable": true,
-        "transparent": false,
-        "decorations": false,
-        "fullscreen": false,
-        "visible": true
-      },
-      {
-        "label": "splashscreen",
-        "title": "splashscreen",
-        "width": 800,
-        "height": 800,
-        "resizable": true,
-        "transparent": false,
-        "decorations": false,
-        "fullscreen": false,
-        "visible": false,
-        "url": "/splashscreen"
-      }
-    ],
-    "security": {
-      "csp": null
-    }
-  },
-  "plugins": {
-    "autostart": null,
-    "windowState": {
-      "default": {
-        "maximize": false,
-        "width": 800,
-        "height": 800
-      }
-    },
-    "opener": {
-      "requireLiteralLeadingDot": false
-    }
-  },
-  "bundle": {
-    "active": true,
-    "targets": "all",
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ],
-    "windows": {
-      "allowDowngrades": true,
-      "certificateThumbprint": null,
-      "digestAlgorithm": null,
-      "signCommand": null,
-      "timestampUrl": null,
-      "tsp": false,
-      "webviewInstallMode": {
-        "silent": true,
-        "type": "offlineInstaller"
-      },
-      "wix": {
-        "language": ["zh-CN"],
-        "template": null,
-        "componentRefs": [],
-        "componentGroupRefs": [],
-        "bannerPath": null,
-        "dialogImagePath": null
-      },
-      "nsis": {
-        "languages": ["zh-CN"],
-        "installerHooks": "./hooks/windows.nsh"
-      }
-    },
-    "linux": {
-      "rpm": {
-        "epoch": 0,
-        "files": {},
-        "release": "1",
-        "postRemoveScript": "./hooks/postUninstallScript.sh"
-      }
-    }
-  }
+	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+	"productName": "desktop-widget",
+	"version": "0.1.0",
+	"identifier": "com.desktop-widget.dev",
+	"build": {
+		"frontendDist": "../out",
+		"devUrl": "http://localhost:8088",
+		"beforeDevCommand": "npm run dev",
+		"beforeBuildCommand": "npm run build"
+	},
+	"app": {
+		"macOSPrivateApi": true,
+		"windows": [
+			{
+				"label": "main",
+				"title": "desktop-widget",
+				"width": 800,
+				"height": 800,
+				"minWidth": 600,
+				"minHeight": 600,
+				"resizable": true,
+				"transparent": false,
+				"decorations": false,
+				"fullscreen": false,
+				"visible": true
+			},
+			{
+				"label": "splashscreen",
+				"title": "splashscreen",
+				"width": 800,
+				"height": 800,
+				"resizable": true,
+				"transparent": false,
+				"decorations": false,
+				"fullscreen": false,
+				"visible": false,
+				"url": "/splashscreen"
+			}
+		],
+		"security": {
+			"csp": null
+		}
+	},
+	"plugins": {
+		"autostart": null,
+		"windowState": {
+			"default": {
+				"maximize": false,
+				"width": 800,
+				"height": 800
+			}
+		},
+		"opener": {
+			"requireLiteralLeadingDot": false
+		}
+	},
+	"bundle": {
+		"active": true,
+		"targets": "all",
+		"icon": [
+			"icons/32x32.png",
+			"icons/128x128.png",
+			"icons/128x128@2x.png",
+			"icons/icon.icns",
+			"icons/icon.ico"
+		],
+		"windows": {
+			"allowDowngrades": true,
+			"certificateThumbprint": null,
+			"digestAlgorithm": null,
+			"signCommand": null,
+			"timestampUrl": null,
+			"tsp": false,
+			"webviewInstallMode": {
+				"silent": true,
+				"type": "offlineInstaller"
+			},
+			"wix": {
+				"language": [
+					"zh-CN"
+				],
+				"template": null,
+				"componentRefs": [],
+				"componentGroupRefs": [],
+				"bannerPath": null,
+				"dialogImagePath": null
+			},
+			"nsis": {
+				"languages": [
+					"zh-CN"
+				],
+				"installerHooks": "./hooks/windows.nsh"
+			}
+		},
+		"linux": {
+			"rpm": {
+				"epoch": 0,
+				"files": {},
+				"release": "1",
+				"postRemoveScript": "./hooks/postUninstallScript.sh"
+			}
+		}
+	}
 }

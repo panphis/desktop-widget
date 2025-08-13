@@ -9,45 +9,53 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 
 export const WindowOperations: FC = () => {
 
-    const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+	const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
-    useEffect(() => {
+	useEffect(() => {
 
-        const window = getCurrentWindow();
-        window.isFullscreen().then((isFullscreen) => {
-            setIsFullscreen(isFullscreen);
-        });
-    }, []);
+		const window = getCurrentWindow();
+		window.isFullscreen().then((isFullscreen) => {
+			setIsFullscreen(isFullscreen);
+		});
+	}, []);
 
-    const toggleFullscreen = async () => {
-        const window = getCurrentWindow();
-        const fullscreen = await getCurrentWindow().isFullscreen();
-        await window.setFullscreen(!fullscreen);
-        setIsFullscreen(!fullscreen);
-    }
+	const toggleFullscreen = async () => {
+		const window = getCurrentWindow();
+		const fullscreen = await getCurrentWindow().isFullscreen();
+		await window.setFullscreen(!fullscreen);
+		setIsFullscreen(!fullscreen);
+	}
 
-    const handleClose = async () => {
-        const window = await getCurrentWindow();
-        window.close();
-    }
+	const handleClose = async () => {
+		const window = await getCurrentWindow();
+		window.close();
+	}
 
-    const handleMinimize = async () => {
-        const window = await getCurrentWindow();
-        window.minimize();
-    }
+	const handleMinimize = async () => {
+		const window = await getCurrentWindow();
+		window.minimize();
+	}
 
-    return (<div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={handleMinimize}>
-            <Minus />
-        </Button>
-        <Button variant="ghost" size="icon" onClick={toggleFullscreen}>
-            {
-                isFullscreen ? <Minimize /> : <Maximize />
-            }
-        </Button>
-        <Button variant="ghost" size="icon" onClick={handleClose}>
-            <X />
-        </Button>
-    </div>);
+	return (
+		<div
+			className="flex items-center gap-2"
+			style={{
+				WebkitAppRegion: "no-drag", // 确保按钮区域不阻止拖动
+				cursor: "default",
+			} as React.CSSProperties}
+		>
+			<Button variant="ghost" size="icon" onClick={handleMinimize}>
+				<Minus />
+			</Button>
+			<Button variant="ghost" size="icon" onClick={toggleFullscreen}>
+				{
+					isFullscreen ? <Minimize /> : <Maximize />
+				}
+			</Button>
+			<Button variant="ghost" size="icon" onClick={handleClose}>
+				<X />
+			</Button>
+		</div>
+	);
 };
 export default WindowOperations

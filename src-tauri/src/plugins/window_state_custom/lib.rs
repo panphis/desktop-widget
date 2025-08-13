@@ -1,8 +1,10 @@
 use std::fs::{read_to_string, write};
 use std::path::{PathBuf};
+use std::time::{Duration, Instant};
+use std::sync::{Mutex, LazyLock};
 
-use tauri::{Webview, WebviewWindow};
-use tauri::{plugin::{Builder, TauriPlugin}, AppHandle, Manager, Runtime, LogicalSize, LogicalPosition, Window, WindowEvent};
+use tauri::{WebviewWindow};
+use tauri::{plugin::{Builder, TauriPlugin}, Manager, Runtime, LogicalSize, LogicalPosition, WindowEvent};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Default)]
@@ -13,6 +15,34 @@ pub struct WindowState {
     pub y: f64,
     pub maximized: bool,
 }
+
+// 防抖结构体
+struct Debouncer {
+    last_save: Instant,
+    save_interval: Duration,
+}
+
+impl Debouncer {
+    fn new() -> Self {
+        Self {
+            last_save: Instant::now(),
+            save_interval: Duration::from_millis(500), // 500ms 防抖间隔
+        }
+    }
+
+    fn should_save(&mut self) -> bool {
+        let now = Instant::now();
+        if now.duration_since(self.last_save) >= self.save_interval {
+            self.last_save = now;
+            true
+        } else {
+            false
+        }
+    }
+}
+
+// 全局防抖器
+static DEBOUNCER: LazyLock<Mutex<Debouncer>> = LazyLock::new(|| Mutex::new(Debouncer::new()));
 
 // 自定义保存路径（你可以换成别的）
 fn get_state_path() -> PathBuf {
@@ -25,6 +55,13 @@ fn get_state_path() -> PathBuf {
 }
 
 fn save_state<R: Runtime>(window: &WebviewWindow<R>) {
+    // 检查防抖器，避免频繁保存
+    if let Ok(mut debouncer) = DEBOUNCER.lock() {
+        if !debouncer.should_save() {
+            return;
+        }
+    }
+
     if let (Ok(size), Ok(pos), Ok(maximized)) = (
         window.outer_size(),
         window.outer_position(),

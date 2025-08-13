@@ -148,7 +148,6 @@ pub mod platform {
     use cocoa::foundation::{NSString, NSAutoreleasePool, NSSize};
     use cocoa::base::{nil, id};
     use objc::{class, msg_send, sel, sel_impl};
-    use std::ffi::CString;
 
     pub fn get_icon(path: String) -> Result<String, String> {
         unsafe {
@@ -178,7 +177,7 @@ pub mod platform {
             }
 
             // 获取 PNG 数据
-            let png_data: id = msg_send![image_rep, representationUsingType: 4 /* NSPNGFileType */, properties: nil];
+            let png_data: id = msg_send![image_rep, representationUsingType:4 properties:nil];
             if png_data == nil {
                 return Err("Failed to get PNG data".to_string());
             }
